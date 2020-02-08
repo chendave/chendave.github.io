@@ -9,13 +9,6 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/04/30/OpenStack-SDN-namespace/</loc>
-    
-    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://jungler.com/2018/04/06/Kubernetes-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E-proxy%E8%AE%BE%E7%BD%AE/</loc>
     
     <lastmod>2020-02-08T11:07:23.964Z</lastmod>
@@ -23,14 +16,7 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/11/04/OpenStack-%E5%BD%92%E6%A1%A3-%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%B4%E6%97%B6%E5%AD%98%E5%82%A8%E4%B8%8E%E5%9D%97%E5%AD%98%E5%82%A8/</loc>
-    
-    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://jungler.com/2018/06/23/PG%E5%BC%82%E5%B8%B8%E7%8A%B6%E6%80%81-active+undersized+degraded/</loc>
+    <loc>http://jungler.com/2018/04/30/OpenStack-SDN-namespace/</loc>
     
     <lastmod>2020-02-08T11:07:23.964Z</lastmod>
     
@@ -44,7 +30,7 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/10/06/Python%E5%9F%BA%E7%A1%80-name-main/</loc>
+    <loc>http://jungler.com/2018/06/23/PG%E5%BC%82%E5%B8%B8%E7%8A%B6%E6%80%81-active+undersized+degraded/</loc>
     
     <lastmod>2020-02-08T11:07:23.964Z</lastmod>
     
@@ -58,21 +44,21 @@
   </url>
   
   <url>
+    <loc>http://jungler.com/2018/11/04/OpenStack-%E5%BD%92%E6%A1%A3-%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%B4%E6%97%B6%E5%AD%98%E5%82%A8%E4%B8%8E%E5%9D%97%E5%AD%98%E5%82%A8/</loc>
+    
+    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://jungler.com/2018/10/06/Python%E5%9F%BA%E7%A1%80-name-main/</loc>
+    
+    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://jungler.com/2018/05/20/kube-patch/</loc>
-    
-    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://jungler.com/2018/04/14/openstack-queen/</loc>
-    
-    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://jungler.com/2018/04/21/where-is-my-data/</loc>
     
     <lastmod>2020-02-08T11:07:23.964Z</lastmod>
     
@@ -86,6 +72,20 @@
   </url>
   
   <url>
+    <loc>http://jungler.com/2018/06/18/%E5%88%9B%E5%BB%BAKubernetes-UI/</loc>
+    
+    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://jungler.com/2018/04/21/where-is-my-data/</loc>
+    
+    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://jungler.com/2018/12/31/%E6%97%A5%E5%BF%97%E8%BF%81%E7%A7%BB/</loc>
     
     <lastmod>2020-02-08T11:07:23.964Z</lastmod>
@@ -93,14 +93,14 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/10/21/%E5%88%9D%E6%8E%A2Openstack-Neutron-DVR/</loc>
+    <loc>http://jungler.com/2018/04/14/openstack-queen/</loc>
     
     <lastmod>2020-02-08T11:07:23.964Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/06/18/%E5%88%9B%E5%BB%BAKubernetes-UI/</loc>
+    <loc>http://jungler.com/2018/09/24/%E7%B3%BB%E7%BB%9F%E9%87%8D%E5%90%AF%E5%90%8E%E6%81%A2%E5%A4%8DOpenStack%E7%BD%91%E7%BB%9C%E8%AE%BE%E7%BD%AE-tips/</loc>
     
     <lastmod>2020-02-08T11:07:23.964Z</lastmod>
     
@@ -114,7 +114,7 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/09/24/%E7%B3%BB%E7%BB%9F%E9%87%8D%E5%90%AF%E5%90%8E%E6%81%A2%E5%A4%8DOpenStack%E7%BD%91%E7%BB%9C%E8%AE%BE%E7%BD%AE-tips/</loc>
+    <loc>http://jungler.com/2018/10/21/%E5%88%9D%E6%8E%A2Openstack-Neutron-DVR/</loc>
     
     <lastmod>2020-02-08T11:07:23.964Z</lastmod>
     
