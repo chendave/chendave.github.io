@@ -55,6 +55,23 @@
 
     
   <url>
+    <loc>http://jungler.com/2018/11/04/OpenStack-%E5%BD%92%E6%A1%A3-%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%B4%E6%97%B6%E5%AD%98%E5%82%A8%E4%B8%8E%E5%9D%97%E5%AD%98%E5%82%A8/</loc>
+    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
+    <data>
+        <display>
+        <title>OpenStack 归档 - 虚拟机临时存储与块存储</title>
+        <pubTime>2018-11-04T07:06:04.000Z</pubTime>
+        
+        <tag>OpenStack</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://jungler.com/2018/05/26/Python%E4%B8%8E%E5%8D%8F%E7%A8%8B/</loc>
     <lastmod>2020-02-08T11:07:23.964Z</lastmod>
     <data>
@@ -89,38 +106,6 @@
 
     
   <url>
-    <loc>http://jungler.com/2018/03/06/hello-world/</loc>
-    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
-    <data>
-        <display>
-        <title>Hello World</title>
-        <pubTime>2018-03-06T07:44:32.000Z</pubTime>
-        
-         
-           
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://jungler.com/2018/11/04/OpenStack-%E5%BD%92%E6%A1%A3-%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%B4%E6%97%B6%E5%AD%98%E5%82%A8%E4%B8%8E%E5%9D%97%E5%AD%98%E5%82%A8/</loc>
-    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
-    <data>
-        <display>
-        <title>OpenStack 归档 - 虚拟机临时存储与块存储</title>
-        <pubTime>2018-11-04T07:06:04.000Z</pubTime>
-        
-        <tag>OpenStack</tag>
-         
-         
-           
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://jungler.com/2018/10/06/Python%E5%9F%BA%E7%A1%80-name-main/</loc>
     <lastmod>2020-02-08T11:07:23.964Z</lastmod>
     <data>
@@ -130,6 +115,21 @@
         
         <tag>Python</tag>
          
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/03/06/hello-world/</loc>
+    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
+    <data>
+        <display>
+        <title>Hello World</title>
+        <pubTime>2018-03-06T07:44:32.000Z</pubTime>
+        
          
            
         </display>
@@ -172,14 +172,14 @@
 
     
   <url>
-    <loc>http://jungler.com/2018/06/18/%E5%88%9B%E5%BB%BAKubernetes-UI/</loc>
+    <loc>http://jungler.com/2018/04/14/openstack-queen/</loc>
     <lastmod>2020-02-08T11:07:23.964Z</lastmod>
     <data>
         <display>
-        <title>Kubernetes Dashboard</title>
-        <pubTime>2018-06-18T04:32:53.000Z</pubTime>
+        <title>OpenStack Queen 版本变更概述</title>
+        <pubTime>2018-04-14T07:44:53.000Z</pubTime>
         
-        <tag>Kubernetes</tag>
+        <tag>OpenStack</tag>
          
          
            
@@ -206,14 +206,14 @@
 
     
   <url>
-    <loc>http://jungler.com/2018/12/31/%E6%97%A5%E5%BF%97%E8%BF%81%E7%A7%BB/</loc>
+    <loc>http://jungler.com/2018/06/18/%E5%88%9B%E5%BB%BAKubernetes-UI/</loc>
     <lastmod>2020-02-08T11:07:23.964Z</lastmod>
     <data>
         <display>
-        <title>Ceph 日志迁移</title>
-        <pubTime>2018-12-31T03:08:57.000Z</pubTime>
+        <title>Kubernetes Dashboard</title>
+        <pubTime>2018-06-18T04:32:53.000Z</pubTime>
         
-        <tag>Ceph</tag>
+        <tag>Kubernetes</tag>
          
          
            
@@ -223,14 +223,31 @@
 
     
   <url>
-    <loc>http://jungler.com/2018/04/14/openstack-queen/</loc>
+    <loc>http://jungler.com/2018/10/21/%E5%88%9D%E6%8E%A2Openstack-Neutron-DVR/</loc>
     <lastmod>2020-02-08T11:07:23.964Z</lastmod>
     <data>
         <display>
-        <title>OpenStack Queen 版本变更概述</title>
-        <pubTime>2018-04-14T07:44:53.000Z</pubTime>
+        <title>（转）初探Openstack Neutron DVR</title>
+        <pubTime>2018-10-21T07:26:18.000Z</pubTime>
         
         <tag>OpenStack</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/12/31/%E6%97%A5%E5%BF%97%E8%BF%81%E7%A7%BB/</loc>
+    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
+    <data>
+        <display>
+        <title>Ceph 日志迁移</title>
+        <pubTime>2018-12-31T03:08:57.000Z</pubTime>
+        
+        <tag>Ceph</tag>
          
          
            
@@ -263,23 +280,6 @@
         <display>
         <title>虚拟机网络不通的几个思路[2]</title>
         <pubTime>2018-07-01T09:14:52.000Z</pubTime>
-        
-        <tag>OpenStack</tag>
-         
-         
-           
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://jungler.com/2018/10/21/%E5%88%9D%E6%8E%A2Openstack-Neutron-DVR/</loc>
-    <lastmod>2020-02-08T11:07:23.964Z</lastmod>
-    <data>
-        <display>
-        <title>（转）初探Openstack Neutron DVR</title>
-        <pubTime>2018-10-21T07:26:18.000Z</pubTime>
         
         <tag>OpenStack</tag>
          
