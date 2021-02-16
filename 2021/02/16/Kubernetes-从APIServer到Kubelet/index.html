@@ -21,7 +21,7 @@
 <meta property="og:description" content="2月13日在崇明东平森林公园 总的来说，Kubelet需要监听APIServer的events, 例如pod的创建事件，然后根据具体的事件去调用CRI的接口完成containers的创建，启动等。 这里记录一下部分核心的代码以备后查。Kubelet启动后定义了对三个消息源的监听，分别是HTTP，File以及APIServer，以">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://github.com/chendave/chendave.github.io/raw/master/css/images/崇明.jpg">
-<meta property="og:updated_time" content="2021-02-16T15:18:37.878Z">
+<meta property="og:updated_time" content="2021-02-16T15:22:28.416Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kubernetes-从APIServer到Kubelet">
 <meta name="twitter:description" content="2月13日在崇明东平森林公园 总的来说，Kubelet需要监听APIServer的events, 例如pod的创建事件，然后根据具体的事件去调用CRI的接口完成containers的创建，启动等。 这里记录一下部分核心的代码以备后查。Kubelet启动后定义了对三个消息源的监听，分别是HTTP，File以及APIServer，以">
@@ -185,7 +185,7 @@
         
         
         <div class="article-entry" itemprop="articleBody">
-            <p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/崇明.jpg" alt="" title="2月13日在崇明东平森林公园"><br>                                   2月13日在崇明东平森林公园</p>
+            <p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/崇明.jpg" alt="" title="2月13日在崇明东平森林公园"><br>                                   <center>2月13日在崇明东平森林公园</center></p>
 <p>总的来说，Kubelet需要监听APIServer的events, 例如pod的创建事件，然后根据具体的事件去调用CRI的接口完成containers的创建，启动等。</p>
 <p>这里记录一下部分核心的代码以备后查。<br>Kubelet启动后定义了对三个消息源的监听，分别是HTTP，File以及APIServer，以APIServer为例，<br><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/<span class="keyword">go</span>/src/k8s.io/kubernetes/pkg/kubelet/kubelet.<span class="keyword">go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makePodSourceConfig</span><span class="params">(kubeCfg *kubeletconfiginternal.KubeletConfiguration, kubeDeps *Dependencies, nodeName types.NodeName)</span> <span class="params">(*config.PodConfig, error)</span></span> &#123;</span><br><span class="line">	...</span><br><span class="line">	<span class="keyword">if</span> kubeDeps.KubeClient != <span class="literal">nil</span> &#123;</span><br><span class="line">		klog.Infof(<span class="string">"Watching apiserver"</span>)</span><br><span class="line">		config.NewSourceApiserver(kubeDeps.KubeClient, nodeName, cfg.Channel(kubetypes.ApiserverSource))</span><br><span class="line">	&#125;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">/<span class="keyword">go</span>/src/k8s.io/kubernetes/pkg/kubelet/config/apiserver.<span class="keyword">go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newSourceApiserverFromLW</span><span class="params">(lw cache.ListerWatcher, updates <span class="keyword">chan</span>&lt;- <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	send := <span class="function"><span class="keyword">func</span><span class="params">(objs []<span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">		<span class="keyword">var</span> pods []*v1.Pod</span><br><span class="line">		<span class="keyword">for</span> _, o := <span class="keyword">range</span> objs &#123;</span><br><span class="line">			pods = <span class="built_in">append</span>(pods, o.(*v1.Pod))</span><br><span class="line">		&#125;</span><br><span class="line">		updates &lt;- kubetypes.PodUpdate&#123;Pods: pods, Op: kubetypes.SET, Source: kubetypes.ApiserverSource&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	r := cache.NewReflector(lw, &amp;v1.Pod&#123;&#125;, cache.NewUndeltaStore(send, cache.MetaNamespaceKeyFunc), <span class="number">0</span>)</span><br><span class="line">	<span class="keyword">go</span> r.Run(wait.NeverStop)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -208,7 +208,7 @@
 
 
 
-    <a data-url="http://jungler.com/2021/02/16/Kubernetes-从APIServer到Kubelet/" data-id="ckl85j4r30003inzblwkp8yo1" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+    <a data-url="http://jungler.com/2021/02/16/Kubernetes-从APIServer到Kubelet/" data-id="ckl85o49d0004s8zbc012o6xp" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
 <script>
     (function ($) {
         $('body').on('click', function() {
