@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://jungler.com/2022/06/16/Kubernetes-metric-server%E7%AE%80%E4%BB%8B/</loc>
+    <loc>http://jungler.com/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
@@ -16,7 +16,7 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/</loc>
+    <loc>http://jungler.com/2022/06/16/Kubernetes-metric-server%E7%AE%80%E4%BB%8B/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
@@ -30,13 +30,6 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/10/06/Python%E5%9F%BA%E7%A1%80-name-main/</loc>
-    
-    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://jungler.com/2018/11/04/OpenStack-%E5%BD%92%E6%A1%A3-%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%B4%E6%97%B6%E5%AD%98%E5%82%A8%E4%B8%8E%E5%9D%97%E5%AD%98%E5%82%A8/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
@@ -44,14 +37,7 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/05/26/Python%E4%B8%8E%E5%8D%8F%E7%A8%8B/</loc>
-    
-    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://jungler.com/2018/03/06/hello-world/</loc>
+    <loc>http://jungler.com/2018/10/06/Python%E5%9F%BA%E7%A1%80-name-main/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
@@ -65,21 +51,21 @@
   </url>
   
   <url>
+    <loc>http://jungler.com/2018/03/06/hello-world/</loc>
+    
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://jungler.com/2018/05/26/Python%E4%B8%8E%E5%8D%8F%E7%A8%8B/</loc>
+    
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://jungler.com/2018/05/20/kube-patch/</loc>
-    
-    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://jungler.com/2021/07/25/kubelet%E8%8B%A5%E5%B9%B2%E9%85%8D%E7%BD%AE-%E5%BE%85%E6%9B%B4%E6%96%B0/</loc>
-    
-    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://jungler.com/2018/07/28/neutron%E6%8E%A5%E5%8F%A3%E5%91%BD%E5%90%8D%E6%BD%9C%E8%A7%84%E5%88%99/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
@@ -93,7 +79,7 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/06/18/%E5%88%9B%E5%BB%BAKubernetes-UI/</loc>
+    <loc>http://jungler.com/2021/07/25/kubelet%E8%8B%A5%E5%B9%B2%E9%85%8D%E7%BD%AE-%E5%BE%85%E6%9B%B4%E6%96%B0/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
@@ -107,6 +93,13 @@
   </url>
   
   <url>
+    <loc>http://jungler.com/2018/07/28/neutron%E6%8E%A5%E5%8F%A3%E5%91%BD%E5%90%8D%E6%BD%9C%E8%A7%84%E5%88%99/</loc>
+    
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://jungler.com/2018/04/21/where-is-my-data/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
@@ -114,7 +107,7 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/12/31/%E6%97%A5%E5%BF%97%E8%BF%81%E7%A7%BB/</loc>
+    <loc>http://jungler.com/2018/06/18/%E5%88%9B%E5%BB%BAKubernetes-UI/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
@@ -128,14 +121,21 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/07/01/%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%B8%8D%E9%80%9A%E7%9A%84%E5%87%A0%E4%B8%AA%E6%80%9D%E8%B7%AF%5B2%5D/</loc>
+    <loc>http://jungler.com/2018/10/21/%E5%88%9D%E6%8E%A2Openstack-Neutron-DVR/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/10/21/%E5%88%9D%E6%8E%A2Openstack-Neutron-DVR/</loc>
+    <loc>http://jungler.com/2018/12/31/%E6%97%A5%E5%BF%97%E8%BF%81%E7%A7%BB/</loc>
+    
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://jungler.com/2018/07/01/%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%B8%8D%E9%80%9A%E7%9A%84%E5%87%A0%E4%B8%AA%E6%80%9D%E8%B7%AF%5B2%5D/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
