@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    
+
+    
+    <title>OpenStack 与 SDN --- namespace | 演好自己的戏，走好自己的路</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="OpenStack" />
+    
+    <meta name="description" content="什么是network namespace先来看看linux手册上对namespace的解释  A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.By default a process inherit">
+<meta name="keywords" content="OpenStack">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenStack 与 SDN --- namespace">
+<meta property="og:url" content="http://jungler.com/2018/04/30/OpenStack-SDN-namespace/index.html">
+<meta property="og:site_name" content="演好自己的戏，走好自己的路">
+<meta property="og:description" content="什么是network namespace先来看看linux手册上对namespace的解释  A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.By default a process inherit">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://jungler.com/css/images/flower.png">
+<meta property="og:updated_time" content="2022-06-19T11:49:19.353Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenStack 与 SDN --- namespace">
+<meta name="twitter:description" content="什么是network namespace先来看看linux手册上对namespace的解释  A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.By default a process inherit">
+<meta name="twitter:image" content="http://jungler.com/css/images/flower.png">
+    
+
+    
+        <link rel="alternate" href="/" title="演好自己的戏，走好自己的路" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png" />
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+
+
+</head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">花生人的苟且人生</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    未分类
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-OpenStack-SDN-namespace" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        OpenStack 与 SDN --- namespace
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2018/04/30/OpenStack-SDN-namespace/" class="article-date">
+         <time datetime="2018-04-30T08:20:33.000Z" itemprop="datePublished">2018-04-30</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/OpenStack/">OpenStack</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h3 id="什么是network-namespace"><a href="#什么是network-namespace" class="headerlink" title="什么是network namespace"></a>什么是network namespace</h3><p>先来看看linux手册上对namespace的解释</p>
+<blockquote>
+<p>A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.<br>By default a process inherits its network namespace from its parent. Initially all the processes share the same default network namespace from the init process.</p>
+</blockquote>
+<p>翻译过来再加以理解，大致的意思就是network namespace实现了对网络资源的隔离，一个namespace有自己的路由，防火墙规则，以及网络设备。进程会从他的父进程那里继承network namespace。所有进程从共同的父进程init进程那里共享默认network namespace.</p>
+<p>默认的network namespace有时也被称作root namespace，一个基本的原则是一个网络设备最终只能属于一个namespace，无论是物理设备或者虚拟设备。从实现上network namespace介于<strong>chroot</strong>与虚拟机VM之间，VM太重，而chroot不能有效实现网络设备隔离，如果想要实现的网络设备的隔离，那么优先考虑namespace。</p>
+<p>从一张图来看或许更加清楚一些：<br><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/namespace.png" alt=""></p>
+<h3 id="namespace与OpenStack"><a href="#namespace与OpenStack" class="headerlink" title="namespace与OpenStack"></a>namespace与OpenStack</h3><p>Neutron项目直接依赖于namespace，具体哪个版本引入不是太清楚了，如果你的环境是用<em>devstack</em>搭建起来的话，那么默认你是可以看到两个namespace的，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ ip netns</span><br><span class="line">qrouter-a781c60f-3929-4a2b-b233-d724f3693d4e</span><br><span class="line">qdhcp-8c21785b-fdcf-49c6-8cf2-9ea56b9e8d35</span><br></pre></td></tr></table></figure>
+<p>可以看到一个提供路由功能，另一个提供DHCP服务，创建多个子网并设置DHCP服务可以在系统上创建对个DHCP namespace。<br>进入到namesapce内部来一探究竟。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">$ sudo ip netns <span class="built_in">exec</span> qrouter-a781c60f-3929-4a2b-b233-d724f3693d4e ip a</span><br><span class="line">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000</span><br><span class="line">    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</span><br><span class="line">    inet 127.0.0.1/8 scope host lo</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">    inet6 ::1/128 scope host</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">42: qr-2e14aa33-ac: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1450 qdisc noqueue state UNKNOWN group default qlen 1000</span><br><span class="line">    link/ether fa:16:3e:88:7b:28 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">    inet 10.0.0.1/26 brd 10.0.0.63 scope global qr-2e14aa33-ac</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">    inet6 fe80::f816:3eff:fe88:7b28/64 scope link</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">43: qg-9ad90b84-19: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000</span><br><span class="line">    link/ether fa:16:3e:33:37:8e brd ff:ff:ff:ff:ff:ff</span><br><span class="line">    inet 192.168.42.139/25 brd 192.168.42.255 scope global qg-9ad90b84-19</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">    inet 192.168.42.131/32 brd 192.168.42.131 scope global qg-9ad90b84-19</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">    inet6 2001:db8::b/64 scope global</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">    inet6 fe80::f816:3eff:fe33:378e/64 scope link</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">44: qr-9166b961-68: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1450 qdisc noqueue state UNKNOWN group default qlen 1000</span><br><span class="line">    link/ether fa:16:3e:11:5f:29 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">    inet6 fdbf:ae1d:a3f6::1/64 scope global</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">    inet6 fe80::f816:3eff:fe11:5f29/64 scope link</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br></pre></td></tr></table></figure>
+<p>对于router namespace来说<em>qr-2e14aa33-ac</em>其实就是一个内网的网关，<em>10.0.0.1/26</em>网段为内网网段，<em>qg-9ad90b84-19</em>则对应的是外网，其中<em>192.168.42.139</em>为外网网关，而其他IP地址则对应一个个用于访问外网的floating IP地址，他们共享一个虚拟的以太网地址或MAC地址。</p>
+<p>dhcp namespace类似，其中除了一个回环设备外，剩下的就是一个IP地址就是DHCP服务器的IP地址。那么虚拟机是如何与他们产生联系的呢？答案是linux bridge或者OVS, 以OVS为例，这些虚拟的设备都会附加到<em>br-int</em> bridge上，对每一个虚拟机而言，又通过veth pair的方式附加到同一个bridge上以实现互联互通。不展开讨论。</p>
+<p>OpenStack引入namespace的目的是为了解决多租户情况下的三层网络IP地址隔离，具体分析不用namespace的情况下可能会出现的问题可以参考这篇博文[1]</p>
+<h3 id="namespace-访问外网"><a href="#namespace-访问外网" class="headerlink" title="namespace 访问外网"></a>namespace 访问外网</h3><p>谈到namespace对外网的访问，这里涉及到两个方面：</p>
+<ol>
+<li>namespace内部网络设备比方说之前提到的 <em>qg-9ad90b84-19</em>设备对外网的访问。</li>
+<li>租户网络与外部网络之间的互访问。</li>
+</ol>
+<p>第一个问题的答案之前已经提及，主要是通过将网络设备绑定到linux bridge或者OVS bridge来实现。<br>第二个问题的答案是floating IP与iptable，floating IP的本质只是通过iptable实现的一些虚拟IP而非物理的绑定到网卡上的IP地址，那么通过查看router上的iptable定义的规则，我们可以很清楚的了解到floating IP的实现原理。</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/namespace-iptables.png" alt=""></p>
+<p>上图中DNAT用于从外部网络访问虚拟机内部网络所定义的地址转换规则；SNAT用于从虚拟机内部网络访问外网是所需要的地址转换规则。</p>
+<p>留下一个问题，namespace与LXC以及container这三者之间的关系是什么？留待下次总结。</p>
+<hr>
+<p>[1] <a href="https://blog.csdn.net/cloudman6/article/details/52876889" target="_blank" rel="noopener">https://blog.csdn.net/cloudman6/article/details/52876889</a></p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://jungler.com/2018/04/30/OpenStack-SDN-namespace/" data-id="cl4lc949f0009ptccik7b7004" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Dave Chen"
+        },
+        "headline": "OpenStack 与 SDN --- namespace",
+        "image": "http://jungler.com/css/images/flower.png",
+        "keywords": "OpenStack",
+        "genre": "",
+        "datePublished": "2018-04-30",
+        "dateCreated": "2018-04-30",
+        "dateModified": "2022-06-19",
+        "url": "http://jungler.com/2018/04/30/OpenStack-SDN-namespace/",
+        "description": "什么是network namespace先来看看linux手册上对namespace的解释
+
+A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.By default a process inherit",
+        "wordCount": 426
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="stack-overflow" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-stack-overflow"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/chendave" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2018/05/20/kube-patch/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            Kubernetes Patch 学习小结
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2018/04/21/where-is-my-data/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">我的数据在哪儿? - Ceph rbd image</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2022/06/16/Kubernetes-metric-server简介/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/世博.jpg)" alt="Kubernetes - metric server简介" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2022/06/16/Kubernetes-metric-server简介/" class="title">Kubernetes - metric server简介</a></p>
+                            <p class="item-date"><time datetime="2022-06-16T08:24:28.000Z" itemprop="datePublished">2022-06-16</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/mid-autumn.jpg)" alt="Kubernetes - HA and LB cluster setup" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="title">Kubernetes - HA and LB cluster setup</a></p>
+                            <p class="item-date"><time datetime="2021-11-09T03:07:45.000Z" itemprop="datePublished">2021-11-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/绍兴.jpg)" alt="kubemark + perf_test(clusterloader) 本地性能测试的注意事项" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="title">kubemark + perf_test(clusterloader) 本地性能测试的注意事项</a></p>
+                            <p class="item-date"><time datetime="2021-09-21T04:35:43.000Z" itemprop="datePublished">2021-09-21</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/07/25/kubelet若干配置-待更新/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/西湖.jpg)" alt="kubelet若干配置-待更新" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/07/25/kubelet若干配置-待更新/" class="title">kubelet若干配置-待更新</a></p>
+                            <p class="item-date"><time datetime="2021-07-25T07:03:16.000Z" itemprop="datePublished">2021-07-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/崇明.jpg)" alt="Kubernetes-从APIServer到Kubelet" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="title">Kubernetes-从APIServer到Kubelet</a></p>
+                            <p class="item-date"><time datetime="2021-02-16T12:40:54.000Z" itemprop="datePublished">2021-02-16</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ceph/">Ceph</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kubernetes/">Kubernetes</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenStack/">OpenStack</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/Ceph/" style="font-size: 15px;">Ceph</a> <a href="/tags/Kubernetes/" style="font-size: 20px;">Kubernetes</a> <a href="/tags/OpenStack/" style="font-size: 20px;">OpenStack</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io">Hexo</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2022 Dave Chen</p>
+                
+                <p>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="https://github.com/ppoffice" target="_blank">PPOffice</a></p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://jungler.com/2018/04/30/OpenStack-SDN-namespace/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

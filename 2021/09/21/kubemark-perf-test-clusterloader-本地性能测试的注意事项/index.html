@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    
+
+    
+    <title>kubemark + perf_test(clusterloader) 本地性能测试的注意事项 | 演好自己的戏，走好自己的路</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="Kubernetes" />
+    
+    <meta name="description" content="6月13日在绍兴 在用kubemark做k8s性能测试的时候踩过一些坑，整理记录一下，免得再次踩坑。 kubemark的架构描述以及原理参考[1],[2]. 环境搭建以及跑benchmark需要注意的事项：  Kubemark的master节点，也就是一个单一的all-in-one的节点最好加上一个”master”的后缀，老版本">
+<meta name="keywords" content="Kubernetes">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kubemark + perf_test(clusterloader) 本地性能测试的注意事项">
+<meta property="og:url" content="http://jungler.com/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/index.html">
+<meta property="og:site_name" content="演好自己的戏，走好自己的路">
+<meta property="og:description" content="6月13日在绍兴 在用kubemark做k8s性能测试的时候踩过一些坑，整理记录一下，免得再次踩坑。 kubemark的架构描述以及原理参考[1],[2]. 环境搭建以及跑benchmark需要注意的事项：  Kubemark的master节点，也就是一个单一的all-in-one的节点最好加上一个”master”的后缀，老版本">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://github.com/chendave/chendave.github.io/raw/master/css/images/绍兴.jpg">
+<meta property="og:updated_time" content="2022-06-19T11:49:19.353Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="kubemark + perf_test(clusterloader) 本地性能测试的注意事项">
+<meta name="twitter:description" content="6月13日在绍兴 在用kubemark做k8s性能测试的时候踩过一些坑，整理记录一下，免得再次踩坑。 kubemark的架构描述以及原理参考[1],[2]. 环境搭建以及跑benchmark需要注意的事项：  Kubemark的master节点，也就是一个单一的all-in-one的节点最好加上一个”master”的后缀，老版本">
+<meta name="twitter:image" content="https://github.com/chendave/chendave.github.io/raw/master/css/images/绍兴.jpg">
+    
+
+    
+        <link rel="alternate" href="/" title="演好自己的戏，走好自己的路" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png" />
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+
+
+</head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">花生人的苟且人生</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    未分类
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-kubemark-perf-test-clusterloader-本地性能测试的注意事项" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        kubemark + perf_test(clusterloader) 本地性能测试的注意事项
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="article-date">
+         <time datetime="2021-09-21T04:35:43.000Z" itemprop="datePublished">2021-09-21</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Kubernetes/">Kubernetes</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/绍兴.jpg" alt="" title="6月13日在绍兴"><br>                                   <center>6月13日在绍兴</center></p>
+<p>在用kubemark做k8s性能测试的时候踩过一些坑，整理记录一下，免得再次踩坑。</p>
+<p>kubemark的架构描述以及原理参考[1],[2].</p>
+<p>环境搭建以及跑benchmark需要注意的事项：</p>
+<ul>
+<li><p>Kubemark的master节点，也就是一个单一的all-in-one的节点最好加上一个”master”的后缀，老版本中需要这个信息来判断是否是控制节点，现在的版本应该没有这个要求了，但是最好还是加上这个后缀.<br>例如以kubeadm搭建的环境可以通过”node-name”这个参数来覆盖默认值。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubeadm init --apiserver-advertise-address 10.10.36.51 --node-name node-master --pod-network-cidr=10.244.0.0/16</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>client端需要支持无密码登陆到kubemark的master节点，clusterloader需要通过ssh连接到master节点获取节点信息。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-copy-id -i id_rsa.pub root@10.10.36.51</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>需要开放的端口，当测试的机器在云上时，这个配置额外需要注意，因为有些端口是被禁的，而clusterloader则需要通过这些端口来收集数据，例如：</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>ports</th>
+<th>协议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>etcd</td>
+<td>2379-2381</td>
+<td>tcp</td>
+</tr>
+<tr>
+<td>kube-scheduler</td>
+<td>10259</td>
+<td>tcp</td>
+</tr>
+<tr>
+<td>kube-controller-manager</td>
+<td>10257</td>
+<td>tcp</td>
+</tr>
+<tr>
+<td>Kubelet API</td>
+<td>10250</td>
+<td>tcp</td>
+</tr>
+<tr>
+<td>Kubernetes API server</td>
+<td>6443</td>
+<td>tcp</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p>让scheduler和controller manager放行metrics endpoints，因为clusterloader会收集metrics数据。或者通过配置授权来让用户通过认证。</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">kube-scheduler.yaml</span><br><span class="line">   spec:</span><br><span class="line">     containers:</span><br><span class="line">     - command:</span><br><span class="line">       ...</span><br><span class="line">       - --bind-address=0.0.0.0</span><br><span class="line">       - --authorization-always-allow-paths=/healthz,/metrics</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>跑benchmark之前需要设置的环境变量，详见测试脚本<a href="https://github.com/chendave/initrepo/blob/5812fc081916f4ed6bffff6c20c65cc12a37ff14/k8s/demo/kubemark/test.sh" title="install scripts" target="_blank" rel="noopener">安装脚本</a>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">KUBE_SSH_USER=root</span><br><span class="line">KUBEMARK_SSH_KEY=&quot;/root/.ssh/id_rsa&quot;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>hollow node的一些配置，</p>
+<ul>
+<li><p>设置用fake node的image service, 否则默认用的host上的image service。</p>
+<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">hollow-node.yaml</span><br><span class="line">  command: [</span><br><span class="line">    &quot;/kubemark&quot;,</span><br><span class="line">    &quot;--morph=kubelet&quot;,</span><br><span class="line">    &quot;--use-host-image-service=false&quot;,	         // 这里！</span><br><span class="line">    &quot;--name=$(NODE_NAME)&quot;,</span><br><span class="line">    &quot;--kubeconfig=/kubeconfig/kubelet.kubeconfig&quot;,</span><br><span class="line">    &quot;--log-file=/var/log/kubelet-$(NODE_NAME).log&quot;,</span><br><span class="line">    &quot;--logtostderr=false&quot;</span><br><span class="line">    #&quot;--max-pods=1000&quot;   //设置最大支持pods数为1000</span><br><span class="line">  ]</span><br></pre></td></tr></table></figure>
+</code></pre></li>
+<li><p>而如果用host的image service时，需要和host上配置的runtime一致，因为测试框架默认用的是containerd，可以看hollow-node.yaml里mount的containerd，如果host上设置的是其它runtime，则起pods的时候会找不到对应的服务。</p>
+</li>
+<li><p>fakenodes默认也是只支持110个pods，如果需要跑更多的pods需要修改hollow node的启动参数。</p>
+<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">hollow-node.yaml</span><br><span class="line">      command: [</span><br><span class="line">        &quot;/kubemark&quot;,</span><br><span class="line">        &quot;--morph=kubelet&quot;,</span><br><span class="line">        &quot;--use-host-image-service=false&quot;,</span><br><span class="line">        &quot;--name=$(NODE_NAME)&quot;,</span><br><span class="line">        &quot;--kubeconfig=/kubeconfig/kubelet.kubeconfig&quot;,</span><br><span class="line">        &quot;--log-file=/var/log/kubelet-$(NODE_NAME).log&quot;,</span><br><span class="line">        &quot;--logtostderr=false&quot;</span><br><span class="line">        #&quot;--max-pods=1000&quot;   //设置最大支持pods数为1000</span><br><span class="line">      ]</span><br></pre></td></tr></table></figure>
+</code></pre></li>
+<li><p>hollow node无需配置太多资源，20m cpu以及20M memory足矣。</p>
+   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">hollow-node.yaml</span><br><span class="line"> ...</span><br><span class="line"> resources:</span><br><span class="line">   requests:</span><br><span class="line">     cpu: 20m</span><br><span class="line">     memory: 20M</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>设置部分组件的<code>profiling</code>为<code>true</code>, 否则cpu或者mem的pprof文件可能为空。</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>设置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>kube-controller-manager</td>
+<td>profiling=true</td>
+</tr>
+<tr>
+<td>kube-api</td>
+<td>无需设置</td>
+</tr>
+<tr>
+<td>kube-scheduling</td>
+<td>无需设置</td>
+</tr>
+<tr>
+<td>etcd</td>
+<td>enable-pprof=true<br> listen-client-urls=<a href="https://0.0.0.0:2379,http://0.0.0.0:2379" target="_blank" rel="noopener">https://0.0.0.0:2379,http://0.0.0.0:2379</a></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p>clusterloader的参数必须指定kubemark的master节点的IP地址，client端需要知道这个信息以收集kubemark对应的cluster的信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go run cmd/clusterloader.go ... --masterip=10.253.2.39 ...--logtostderr=false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>默认etcd的listen端口一般是2381，而代码里的默认值是2382，所以需要告诉clusterloader真实的etcd的监听端口是多少。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go run cmd/clusterloader.go ... --etcd-insecure-port=2381 ...--logtostderr=false</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>测试框架里有默认的throughput的threshold值，但是实际上跑下来经常会超过默认值，可以修改测试的schema以免跑出来一些warning信息。</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--- a/clusterloader2/testing/node-throughput/config.yaml</span></span><br><span class="line"><span class="comment">+++ b/clusterloader2/testing/node-throughput/config_origin.yaml</span></span><br><span class="line">@@ -17,16 +17,19 @@ steps:</span><br><span class="line">     Method: APIResponsiveness</span><br><span class="line">     Params:</span><br><span class="line">       action: reset</span><br><span class="line"><span class="addition">+      threshold: 20s</span></span><br><span class="line">   - Identifier: PodStartupLatency</span><br><span class="line">     Method: PodStartupLatency</span><br><span class="line">     Params:</span><br><span class="line">       action: start</span><br><span class="line">       +      threshold: 20s</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>load测试过程中master节点要打taint，单纯的cardon-ed不会阻止某些测试，例如daemonset scheduler到master，会造成期待的与实际起来的pods数量不一致。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl taint nodes kubemark-master node-role.kubernetes.io/master=:NoSchedule</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>本地测试时，一般是不支持PV的dynamic provision的，然而各个cloud的provider可能支持，测试框架中默认支持，所以本地测试的时候需要把pv相关的测试disable。</p>
+<pre><code><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--- a/clusterloader2/testing/load/statefulset.yaml</span></span><br><span class="line"><span class="comment">+++ b/clusterloader2/testing/load/statefulset_origin.yaml</span></span><br><span class="line"><span class="meta">@@ -1,5 +1,5 @@</span></span><br><span class="line"> &#123;&#123;$HostNetworkMode := DefaultParam .CL2_USE_HOST_NETWORK_PODS false&#125;&#125;</span><br><span class="line"><span class="deletion">-&#123;&#123;$EnablePVs := DefaultParam .CL2_ENABLE_PVS true&#125;&#125;</span></span><br><span class="line"><span class="addition">+&#123;&#123;$EnablePVs := DefaultParam .CL2_ENABLE_PVS false&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+</code></pre></li>
+<li><p>load测试需要disable掉daemonset [3]</p>
+<pre><code><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--- a/clusterloader2/testing/load/modules/reconcile-objects.yaml</span></span><br><span class="line"><span class="comment">+++ b/clusterloader2/testing/load/modules/reconcile-objects_origin.yaml</span></span><br><span class="line"><span class="meta">@@ -44,10 +44,10 @@</span></span><br><span class="line"></span><br><span class="line"> ## CL2 params</span><br><span class="line"> &#123;&#123;$CHECK_IF_PODS_ARE_UPDATED := DefaultParam .CL2_CHECK_IF_PODS_ARE_UPDATED true&#125;&#125;</span><br><span class="line"><span class="deletion">-&#123;&#123;$DISABLE_DAEMONSETS := DefaultParam .CL2_DISABLE_DAEMONSETS false&#125;&#125;</span></span><br><span class="line"><span class="addition">+&#123;&#123;$DISABLE_DAEMONSETS := DefaultParam .CL2_DISABLE_DAEMONSETS true&#125;&#125;</span></span><br><span class="line"> &#123;&#123;$ENABLE_DNSTESTS := DefaultParam .CL2_ENABLE_DNSTESTS false&#125;&#125;</span><br><span class="line"> &#123;&#123;$ENABLE_NETWORKPOLICIES := DefaultParam .CL2_ENABLE_NETWORKPOLICIES false&#125;&#125;</span><br><span class="line"><span class="deletion">-&#123;&#123;$ENABLE_PVS := DefaultParam .CL2_ENABLE_PVS true&#125;&#125;</span></span><br><span class="line"><span class="addition">+&#123;&#123;$ENABLE_PVS := DefaultParam .CL2_ENABLE_PVS false&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+</code></pre></li>
+</ul>
+<p>其它的一些说明：</p>
+<ol>
+<li><p>单纯的cpu或者mem的profiling，可以不用借助clusterloader，可以直接通过调用url即可获取一段时间的数据，例如：</p>
+<ul>
+<li><p>打开scheduler的不安全端口</p>
+<pre><code><figure class="highlight diff"><figcaption><span>kube-scheduler_updated.yaml kube-scheduler_origin.yaml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;     - --port=7788</span><br><span class="line"><span class="comment">---</span></span><br><span class="line">&gt;     - --port=0</span><br></pre></td></tr></table></figure>
+</code></pre><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -k http://localhost:7788/debug/pprof/profile?seconds=30 -o cpu2.pprof</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置好用户授权后，也可以通过https端口来后去数据</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -k https://localhost:10259/debug/pprof/profile?seconds=30 -o cpu2.pprof</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<ol start="2">
+<li><p>火焰图</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; go tool pprof http://localhost:7788/debug/pprof/profile?seconds=30 //生成数据，可以在/root/pprof/下找到压缩包</span><br><span class="line">&gt; web		  						   //通过网页load数据</span><br></pre></td></tr></table></figure>
+<p>web页面上view的icon下面可以找到<code>flame graph</code>，点击即可load火焰图，注意有些组件需要配置非安全端口或者配置好授权之后才可以拉到数据。</p>
+</li>
+<li><p>分析cpu或者mem的profiling数据时，主要有这么几个数据 [4]<br>flat: 当前函数的耗时（不包含调用的子函数），所以这个数据一般不大。<br>flat%: 占总耗时的百分比。<br>sum%: 函数占CPU耗时的累计百分比。<br>cum: 当前函数加上其调用的子函数总共的耗时<br>cum%: 当前函数加上其调用的子函数总共的耗时占总耗时的百分比，这个参考意义更大一些。</p>
+</li>
+<li><p>获取apiserver的pprof数据需要指定端口为6443，参考: <a href="https://github.com/kubernetes/perf-tests/pull/1937" target="_blank" rel="noopener">https://github.com/kubernetes/perf-tests/pull/1937</a>.</p>
+</li>
+<li><p>对于etcd的profiling来说，除了上面说的需要enable profiling之外，还需要指定cert以及key，对应的参数为: <code>--etcd-certificate</code>与<code>--etcd-key</code>，可以用curl来做个实验，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -k --cert /etc/kubernetes/pki/etcd/healthcheck-client.crt --key /etc/kubernetes/pki/etcd/healthcheck-client.key https://localhost:2379/debug/pprof/profile?seconds=10 -o cpu2.pprof</span><br></pre></td></tr></table></figure>
+<p>/etc/kubernetes/pki/etcd下面的证书都可以用。</p>
+</li>
+</ol>
+<h2 id="reference："><a href="#reference：" class="headerlink" title="reference："></a>reference：</h2><p>[1] <a href="https://github.com/kubernetes/community/blob/master/contributors/devel/sig-scalability/kubemark-guide.md" target="_blank" rel="noopener">https://github.com/kubernetes/community/blob/master/contributors/devel/sig-scalability/kubemark-guide.md</a><br>[2] <a href="https://github.com/kubernetes/kubernetes/tree/master/test/kubemark/pre-existing" target="_blank" rel="noopener">https://github.com/kubernetes/kubernetes/tree/master/test/kubemark/pre-existing</a><br>[3] <a href="https://github.com/kubernetes/perf-tests/issues/1878" target="_blank" rel="noopener">https://github.com/kubernetes/perf-tests/issues/1878</a><br>[4] <a href="https://xiazemin.github.io/MyBlog/golang/2020/03/26/cum.html" target="_blank" rel="noopener">https://xiazemin.github.io/MyBlog/golang/2020/03/26/cum.html</a></p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://jungler.com/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" data-id="cl4lc949v000tptcco0f5k7ul" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Dave Chen"
+        },
+        "headline": "kubemark + perf_test(clusterloader) 本地性能测试的注意事项",
+        "image": "http://jungler.comhttps://github.com/chendave/chendave.github.io/raw/master/css/images/绍兴.jpg",
+        "keywords": "Kubernetes",
+        "genre": "",
+        "datePublished": "2021-09-21",
+        "dateCreated": "2021-09-21",
+        "dateModified": "2022-06-19",
+        "url": "http://jungler.com/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/",
+        "description": "                                   6月13日在绍兴
+在用kubemark做k8s性能测试的时候踩过一些坑，整理记录一下，免得再次踩坑。
+kubemark的架构描述以及原理参考[1],[2].
+环境搭建以及跑benchmark需要注意的事项：
+
+Kubemark的master节点，也就是一个单一的all-in-one的节点最好加上一个”master”的后缀，老版本",
+        "wordCount": 730
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="stack-overflow" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-stack-overflow"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/chendave" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            Kubernetes - HA and LB cluster setup
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2021/07/25/kubelet若干配置-待更新/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">kubelet若干配置-待更新</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2022/06/16/Kubernetes-metric-server简介/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/世博.jpg)" alt="Kubernetes - metric server简介" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2022/06/16/Kubernetes-metric-server简介/" class="title">Kubernetes - metric server简介</a></p>
+                            <p class="item-date"><time datetime="2022-06-16T08:24:28.000Z" itemprop="datePublished">2022-06-16</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/mid-autumn.jpg)" alt="Kubernetes - HA and LB cluster setup" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="title">Kubernetes - HA and LB cluster setup</a></p>
+                            <p class="item-date"><time datetime="2021-11-09T03:07:45.000Z" itemprop="datePublished">2021-11-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/绍兴.jpg)" alt="kubemark + perf_test(clusterloader) 本地性能测试的注意事项" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="title">kubemark + perf_test(clusterloader) 本地性能测试的注意事项</a></p>
+                            <p class="item-date"><time datetime="2021-09-21T04:35:43.000Z" itemprop="datePublished">2021-09-21</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/07/25/kubelet若干配置-待更新/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/西湖.jpg)" alt="kubelet若干配置-待更新" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/07/25/kubelet若干配置-待更新/" class="title">kubelet若干配置-待更新</a></p>
+                            <p class="item-date"><time datetime="2021-07-25T07:03:16.000Z" itemprop="datePublished">2021-07-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/崇明.jpg)" alt="Kubernetes-从APIServer到Kubelet" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="title">Kubernetes-从APIServer到Kubelet</a></p>
+                            <p class="item-date"><time datetime="2021-02-16T12:40:54.000Z" itemprop="datePublished">2021-02-16</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ceph/">Ceph</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kubernetes/">Kubernetes</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenStack/">OpenStack</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/Ceph/" style="font-size: 15px;">Ceph</a> <a href="/tags/Kubernetes/" style="font-size: 20px;">Kubernetes</a> <a href="/tags/OpenStack/" style="font-size: 20px;">OpenStack</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io">Hexo</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2022 Dave Chen</p>
+                
+                <p>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="https://github.com/ppoffice" target="_blank">PPOffice</a></p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://jungler.com/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

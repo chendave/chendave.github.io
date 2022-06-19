@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    
+
+    
+    <title>（转）初探Openstack Neutron DVR | 演好自己的戏，走好自己的路</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="OpenStack" />
+    
+    <meta name="description" content="这篇文章总结的很好了，偷懒直接转过来，以便日后不时查看。 首先看一下，没有使用DVR的问题在哪里：  从图中可以明显看到东西向和南北向的流量会集中到网络节点，这会使网络节点成为瓶颈。 那如果启用的DVR，情况会变成如下：  对于东西向的流量， 流量会直接在计算节点之间传递。对于南北向的流量，如果有floating ip，流量就直接走计算节点。如果没有floating ip，则会走网络节点。 我的实">
+<meta name="keywords" content="OpenStack">
+<meta property="og:type" content="article">
+<meta property="og:title" content="（转）初探Openstack Neutron DVR">
+<meta property="og:url" content="http://jungler.com/2018/10/21/初探Openstack-Neutron-DVR/index.html">
+<meta property="og:site_name" content="演好自己的戏，走好自己的路">
+<meta property="og:description" content="这篇文章总结的很好了，偷懒直接转过来，以便日后不时查看。 首先看一下，没有使用DVR的问题在哪里：  从图中可以明显看到东西向和南北向的流量会集中到网络节点，这会使网络节点成为瓶颈。 那如果启用的DVR，情况会变成如下：  对于东西向的流量， 流量会直接在计算节点之间传递。对于南北向的流量，如果有floating ip，流量就直接走计算节点。如果没有floating ip，则会走网络节点。 我的实">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://jungler.com/css/images/forward.jpg">
+<meta property="og:updated_time" content="2022-06-19T11:49:19.353Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="（转）初探Openstack Neutron DVR">
+<meta name="twitter:description" content="这篇文章总结的很好了，偷懒直接转过来，以便日后不时查看。 首先看一下，没有使用DVR的问题在哪里：  从图中可以明显看到东西向和南北向的流量会集中到网络节点，这会使网络节点成为瓶颈。 那如果启用的DVR，情况会变成如下：  对于东西向的流量， 流量会直接在计算节点之间传递。对于南北向的流量，如果有floating ip，流量就直接走计算节点。如果没有floating ip，则会走网络节点。 我的实">
+<meta name="twitter:image" content="http://jungler.com/css/images/forward.jpg">
+    
+
+    
+        <link rel="alternate" href="/" title="演好自己的戏，走好自己的路" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png" />
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+
+
+</head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">花生人的苟且人生</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    未分类
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-初探Openstack-Neutron-DVR" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        （转）初探Openstack Neutron DVR
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2018/10/21/初探Openstack-Neutron-DVR/" class="article-date">
+         <time datetime="2018-10-21T07:26:18.000Z" itemprop="datePublished">2018-10-21</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/OpenStack/">OpenStack</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p>这篇文章总结的很好了，偷懒直接转过来，以便日后不时查看。</p>
+<p>首先看一下，没有使用DVR的问题在哪里：</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/issues.png" alt=""></p>
+<p>从图中可以明显看到东西向和南北向的流量会集中到网络节点，这会使网络节点成为瓶颈。</p>
+<p>那如果启用的DVR，情况会变成如下：</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/dvr.png" alt=""></p>
+<p>对于东西向的流量， 流量会直接在计算节点之间传递。<br>对于南北向的流量，如果有floating ip，流量就直接走计算节点。如果没有floating ip，则会走网络节点。</p>
+<p>我的实验环境如下：</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/lab.png" alt=""></p>
+<p>然后起了两个私有网络和一个DVR 路由器，拓扑如下:</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/network.png" alt=""></p>
+<p>注:<br>可以看到每个网络与DVR连接时有两个接口，以private1为例，有10.0.1.1和10.0.1.6。</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/interface1.png" alt=""></p>
+<p>可以看到10.0.1.6是centralized_snat的网关，这个地址是在网络节点上的。<br>10.0.1.1是router_interface_distributed地址，它是在每一个计算节点上的。虚机获取到的默认网关就是这个IP。</p>
+<p>虚机情况如下：</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/interface2.png" alt=""></p>
+<p>注:<br>虚机privateX-computeY-VM表示，此虚机起在privateX网络，computeY节点上。在compute1节点的两台虚机拥有floating ip。</p>
+<p>下面分析三种情况下traffic的是怎么走的：</p>
+<ol>
+<li>东西向流量：以private1-compute1-VM和private2-compute2-VM之间的通信为例。</li>
+<li>南北向流量：<br> a) 带floating ip， 以private1-compute1-VM对外通信为例。<br> b) 不带floating ip， 以private1-compute2-VM对外通信为例。</li>
+</ol>
+<p>第一种情况 – 东西向流量<br>首先我们看一下虚机private1-compute1-VM的IP和路由:</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/we1.png" alt=""></p>
+<p>再看一下虚机private2-compute2-VM的IP和路由:</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/we2.png" alt=""></p>
+<p>我们在private1-compute1-VM中ping 10.0.2.5(private2-compute2-VM的IP)。</p>
+<p>当我们ping了之后，在首先会查询private1-compute1-VM的路由表，会将包发送到网关10.0.1.1。那么会首先会发送10.0.1.1的arp请求。<br>arp请求会发送到br-int上。<br>我们可以看到10.0.1.5的port id是4e843b99开头的：</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/interface3.png" alt=""></p>
+<p>最终会转发到br-int的qvo4e843b99-fb:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">root@dvr-compute1:~<span class="comment"># ovs-vsctl show</span></span><br><span class="line">67f121bd-cca7-41c2-95ab-23ed85d1305b</span><br><span class="line">    Bridge br-tun</span><br><span class="line">        Port patch-int</span><br><span class="line">            Interface patch-int</span><br><span class="line">                <span class="built_in">type</span>: patch</span><br><span class="line">                options: &#123;peer=patch-tun&#125;</span><br><span class="line">        Port <span class="string">"vxlan-0ae09f91"</span></span><br><span class="line">            Interface <span class="string">"vxlan-0ae09f91"</span></span><br><span class="line">                <span class="built_in">type</span>: vxlan</span><br><span class="line">                options: &#123;df_default=<span class="string">"true"</span>, in_key=flow, local_ip=<span class="string">"10.224.159.141"</span>, out_key=flow, remote_ip=<span class="string">"10.224.159.145"</span>&#125;</span><br><span class="line">        Port <span class="string">"vxlan-0ae09f88"</span></span><br><span class="line">            Interface <span class="string">"vxlan-0ae09f88"</span></span><br><span class="line">                <span class="built_in">type</span>: vxlan</span><br><span class="line">                options: &#123;df_default=<span class="string">"true"</span>, in_key=flow, local_ip=<span class="string">"10.224.159.141"</span>, out_key=flow, remote_ip=<span class="string">"10.224.159.136"</span>&#125;</span><br><span class="line">        Port br-tun</span><br><span class="line">            Interface br-tun</span><br><span class="line">                <span class="built_in">type</span>: internal</span><br><span class="line">    Bridge br-int</span><br><span class="line">        fail_mode: secure</span><br><span class="line">        Port <span class="string">"qvo111517d8-c5"</span></span><br><span class="line">            tag: 2</span><br><span class="line">            Interface <span class="string">"qvo111517d8-c5"</span></span><br><span class="line">        Port patch-tun</span><br><span class="line">            Interface patch-tun</span><br><span class="line">                <span class="built_in">type</span>: patch</span><br><span class="line">                options: &#123;peer=patch-int&#125;</span><br><span class="line">        Port <span class="string">"qr-001d0ed9-01"</span></span><br><span class="line">            tag: 2</span><br><span class="line">            Interface <span class="string">"qr-001d0ed9-01"</span></span><br><span class="line">                <span class="built_in">type</span>: internal</span><br><span class="line">        Port br-int</span><br><span class="line">            Interface br-int</span><br><span class="line">                <span class="built_in">type</span>: internal</span><br><span class="line">        Port <span class="string">"qr-ddbdc784-d7"</span></span><br><span class="line">            tag: 1</span><br><span class="line">            Interface <span class="string">"qr-ddbdc784-d7"</span></span><br><span class="line">                <span class="built_in">type</span>: internal</span><br><span class="line">        Port <span class="string">"qvo4e843b99-fb"</span></span><br><span class="line">            tag: 1</span><br><span class="line">            Interface <span class="string">"qvo4e843b99-fb"</span></span><br><span class="line">    Bridge br-ex</span><br><span class="line">        Port br-ex</span><br><span class="line">            Interface br-ex</span><br><span class="line">                <span class="built_in">type</span>: internal</span><br><span class="line">        Port <span class="string">"fg-081d537b-06"</span></span><br><span class="line">            Interface <span class="string">"fg-081d537b-06"</span></span><br><span class="line">                <span class="built_in">type</span>: internal</span><br><span class="line">    ovs_version: <span class="string">"2.0.2"</span></span><br></pre></td></tr></table></figure>
+<p>而端口qvo4e843b99-fb是属于vlan 1的，arp广播包会转发到”qr-ddbdc784-d7”和”patch-tun”。</p>
+<p>首先看”qr-ddbdc784-d7”，这是interface_distributed的接口：</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/interface4.png" alt=""></p>
+<p>这个接口是在compute node的的DVR中的：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">root@dvr-compute1:~<span class="comment"># ip netns</span></span><br><span class="line">fip-fbd46644-c70f-4227-a414-862a00cbd1d2</span><br><span class="line">&lt;font color=DarkRed size=5&gt;qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa&lt;/font&gt;</span><br><span class="line">qdhcp-401f678d-4518-446c-9a33-cd2fb054c104</span><br><span class="line">qdhcp-db755841-0764-4a8f-b962-8df008ce6330</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">root@dvr-compute1:~<span class="comment"># ip netns exec qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa ifconfig</span></span><br><span class="line">lo        Link encap:Local Loopback  </span><br><span class="line">          inet addr:127.0.0.1  Mask:255.0.0.0</span><br><span class="line">          inet6 addr: ::1/128 Scope:Host</span><br><span class="line">          UP LOOPBACK RUNNING  MTU:65536  Metric:1</span><br><span class="line">          RX packets:0 errors:0 dropped:0 overruns:0 frame:0</span><br><span class="line">          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0</span><br><span class="line">          collisions:0 txqueuelen:0 </span><br><span class="line">          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">qr-001d0ed9-01 Link encap:Ethernet  HWaddr fa:16:3e:69:b4:05  </span><br><span class="line">          inet addr:10.0.2.1  Bcast:10.0.2.255  Mask:255.255.255.0</span><br><span class="line">          inet6 addr: fe80::f816:3eff:fe69:b405/64 Scope:Link</span><br><span class="line">          UP BROADCAST RUNNING  MTU:1500  Metric:1</span><br><span class="line">          RX packets:35 errors:0 dropped:0 overruns:0 frame:0</span><br><span class="line">          TX packets:14 errors:0 dropped:0 overruns:0 carrier:0</span><br><span class="line">          collisions:0 txqueuelen:0 </span><br><span class="line">          RX bytes:3510 (3.5 KB)  TX bytes:1092 (1.0 KB)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;font color=DarkRed size=5&gt;</span><br><span class="line">qr-ddbdc784-d7 Link encap:Ethernet  HWaddr fa:16:3e:66:13:af  </span><br><span class="line">          inet addr:10.0.1.1  Bcast:10.0.1.255  Mask:255.255.255.0</span><br><span class="line">          inet6 addr: fe80::f816:3eff:fe66:13af/64 Scope:Link</span><br><span class="line">          UP BROADCAST RUNNING  MTU:1500  Metric:1</span><br><span class="line">          RX packets:401 errors:0 dropped:0 overruns:0 frame:0</span><br><span class="line">          TX packets:378 errors:0 dropped:0 overruns:0 carrier:0</span><br><span class="line">          collisions:0 txqueuelen:0 </span><br><span class="line">          RX bytes:38224 (38.2 KB)  TX bytes:36224 (36.2 KB)</span><br><span class="line">&lt;/font&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">rfp-0fbb351e<span class="_">-a</span> Link encap:Ethernet  HWaddr ea:5c:56:9a:36:9c  </span><br><span class="line">          inet addr:169.254.31.28  Bcast:0.0.0.0  Mask:255.255.255.254</span><br><span class="line">          inet6 addr: fe80::e85c:56ff:fe9a:369c/64 Scope:Link</span><br><span class="line">          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1</span><br><span class="line">          RX packets:12 errors:0 dropped:0 overruns:0 frame:0</span><br><span class="line">          TX packets:12 errors:0 dropped:0 overruns:0 carrier:0</span><br><span class="line">          collisions:0 txqueuelen:1000 </span><br><span class="line">          RX bytes:1116 (1.1 KB)  TX bytes:1116 (1.1 KB)</span><br></pre></td></tr></table></figure>
+<p>接口qr-ddbdc784-d7拥有10.0.1.1。所以他会响应ARP请求。</p>
+<p>回过头来看”patch-tun”, ARP请求转发到这个接口后，会转发到br-tun。看一下br-tun上的flow, 目前我们只需要看红色部分，他会将目标地址为10.0.1.1的ARP请求丢弃：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">root@dvr-compute1:~<span class="comment"># ovs-ofctl dump-flows br-tun </span></span><br><span class="line">NXST_FLOW reply (xid=0x4): </span><br><span class="line">。。。</span><br><span class="line">cookie=0x0, duration=64720.432s, table=1, n_packets=4, n_bytes=168, idle_age=64607, priority=3,arp,dl_vlan=1,arp_tpa=10.0.1.1 actions=drop </span><br><span class="line">cookie=0x0, duration=62666.766s, table=1, n_packets=2, n_bytes=84, idle_age=62576, priority=3,arp,dl_vlan=2,arp_tpa=10.0.2.1 actions=drop </span><br><span class="line">。。。</span><br></pre></td></tr></table></figure>
+<p>回到我们虚机，当获取到了10.0.1.1的MAC地址后，会发出如下的包：<br>Dest IP: 10.0.2.5<br>Souce IP: 10.0.1.5<br>Dest MAC: MAC of 10.0.1.1<br>Source MAC: MAC of 10.0.1.5</p>
+<p>之后包被转发到compute1的qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa 的namespace：<br>这里利用了内核的高级路由到了，首先看一下ip rule：<br>root@dvr-compute1:~# ip netns exec qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa ip rule<br>0: from all lookup local<br>32766: from all lookup main<br>32767: from all lookup default<br>32768: from 10.0.1.5 lookup 16<br>32769: from 10.0.2.3 lookup 16<br>167772417: from 10.0.1.1/24 lookup 167772417<br>167772417: from 10.0.1.1/24 lookup 167772417<br>167772673: from 10.0.2.1/24 lookup 167772673 </p>
+<p>可以看到会先查找main表：<br>root@dvr-compute1:~# ip netns exec qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa ip route list table main<br>10.0.1.0/24 dev qr-ddbdc784-d7 proto kernel scope link src 10.0.1.1<br>10.0.2.0/24 dev qr-001d0ed9-01 proto kernel scope link src 10.0.2.1<br>169.254.31.28/31 dev rfp-0fbb351e-a proto kernel scope link src 169.254.31.28</p>
+<p>在main表中满足以下路由:<br>10.0.2.0/24 dev qr-001d0ed9-01 proto kernel scope link src 10.0.2.1<br>因此会从qr-001d0ed9-01转发出去。</p>
+<p>之后需要去查询10.0.2.5的MAC地址， MAC是由neutron使用静态ARP的方式设定的：<br>root@dvr-compute1:~# ip netns exec qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa ip nei<br>10.0.1.5 dev qr-ddbdc784-d7 lladdr fa:16:3e:da:75:6d PERMANENT<br>10.0.2.3 dev qr-001d0ed9-01 lladdr fa:16:3e:a4:fc:98 PERMANENT<br>10.0.1.6 dev qr-ddbdc784-d7 lladdr fa:16:3e:9f:55:67 PERMANENT<br>10.0.2.2 dev qr-001d0ed9-01 lladdr fa:16:3e:13:55:66 PERMANENT</p>
+<p><font color="DarkRed" size="4">10.0.2.5 dev qr-001d0ed9-01 lladdr fa:16:3e:51:99:b8 PERMANENT</font><br>10.0.1.4 dev qr-ddbdc784-d7 lladdr fa:16:3e:da:e3:6e PERMANENT<br>10.0.1.7 dev qr-ddbdc784-d7 lladdr fa:16:3e:14:b8:ec PERMANENT<br>169.254.31.29 dev rfp-0fbb351e-a lladdr 42:0d:9f:49:63:c6 STALE</p>
+<p>由于Neutron知道所有虚机的信息，因此他可以事先设定好静态ARP。<br>至此，我们的ICMP包会变成以下形式从qr-001d0ed9-01转发出去：<br>Dest IP: 10.0.2.5<br>Souce IP: 10.0.1.5<br>Dest MAC: MAC of 10.0.2.5<br>Source MAC: MAC of 10.0.2.1</p>
+<p>当包转发到”br-tun”后，进开始查询openflow表。<br>首先我们看一下br-tun的接口状况：<br>root@dvr-compute1:~# ovs-ofctl show br-tun<br>OFPT_FEATURES_REPLY (xid=0x2): dpid:0000e2b7aa5da34a<br>n_tables:254, n_buffers:256<br>capabilities: FLOW_STATS TABLE_STATS PORT_STATS QUEUE_STATS ARP_MATCH_IP<br>actions: OUTPUT SET_VLAN_VID SET_VLAN_PCP STRIP_VLAN SET_DL_SRC SET_DL_DST SET_NW_SRC SET_NW_DST SET_NW_TOS SET_TP_SRC SET_TP_DST ENQUEUE<br> 1(patch-int): addr:76:ae:9f:b3:bf:c6<br>     config:     0<br>     state:      0<br>     speed: 0 Mbps now, 0 Mbps max<br> 3(vxlan-0ae09f88): addr:92:61:e9:43:dd:99<br>     config:     0<br>     state:      0<br>     speed: 0 Mbps now, 0 Mbps max<br> 4(vxlan-0ae09f91): addr:2e:cc:c0:4a:4e:d4<br>     config:     0<br>     state:      0<br>     speed: 0 Mbps now, 0 Mbps max<br> LOCAL(br-tun): addr:e2:b7:aa:5d:a3:4a<br>     config:     0<br>     state:      0<br>     speed: 0 Mbps now, 0 Mbps max<br>OFPT_GET_CONFIG_REPLY (xid=0x4): frags=normal miss_send_len=0</p>
+<p>首先我们看一下br-tun的flowtable，首先会进入table 0，由于包是从br-int发过来的，因此in_port是patch-int(1)，之后会查询表1：<br> cookie=0x0, duration=66172.51s, table=0, n_packets=58, n_bytes=5731, idle_age=20810, hard_age=65534, priority=1,in_port=3 actions=resubmit(,4)<br> cookie=0x0, duration=67599.526s, table=0, n_packets=273, n_bytes=24999, idle_age=1741, hard_age=65534, priority=1,in_port=1 actions=resubmit(,1)<br> cookie=0x0, duration=64437.052s, table=0, n_packets=28, n_bytes=2980, idle_age=20799, priority=1,in_port=4 actions=resubmit(,4)<br> cookie=0x0, duration=67601.704s, table=0, n_packets=5, n_bytes=390, idle_age=65534, hard_age=65534, priority=0 actions=drop</p>
+<p>表1，这张表中会丢弃目标地址是interface_distributed接口的ARP和目的MAC是interface_distributed的包。以防止虚机发送给本地IR的包不会被转发到网络中。<br>我们的ICMP包会命中一下flow，它会把源MAC地址改为全局唯一和计算节点绑定的MAC:<br> cookie=0x0, duration=66135.811s, table=1, n_packets=140, n_bytes=13720, idle_age=65534, hard_age=65534, priority=1,dl_vlan=1,dl_src=fa:16:3e:66:13:af actions=mod_dl_src:fa:16:3f:fe:49:e9,resubmit(,2)<br> cookie=0x0, duration=64082.141s, table=1, n_packets=2, n_bytes=200, idle_age=64081, priority=1,dl_vlan=2,dl_src=fa:16:3e:69:b4:05 actions=mod_dl_src:fa:16:3f:fe:49:e9,resubmit(,2)<br> cookie=0x0, duration=66135.962s, table=1, n_packets=1, n_bytes=98, idle_age=65301, hard_age=65534, priority=2,dl_vlan=1,dl_dst=fa:16:3e:66:13:af actions=drop<br> cookie=0x0, duration=64082.297s, table=1, n_packets=0, n_bytes=0, idle_age=64082, priority=2,dl_vlan=2,dl_dst=fa:16:3e:69:b4:05 actions=drop<br> cookie=0x0, duration=66136.115s, table=1, n_packets=4, n_bytes=168, idle_age=65534, hard_age=65534, priority=3,arp,dl_vlan=1,arp_tpa=10.0.1.1 actions=drop<br> cookie=0x0, duration=64082.449s, table=1, n_packets=2, n_bytes=84, idle_age=63991, priority=3,arp,dl_vlan=2,arp_tpa=10.0.2.1 actions=drop<br> cookie=0x0, duration=67599.22s, table=1, n_packets=123, n_bytes=10687, idle_age=1741, hard_age=65534, priority=0 actions=resubmit(,2)</p>
+<p>这个全局唯一和计算节点绑定的MAC地址，是由neutron全局分配的，数据库中可以看到这个MAC是每个host一个：</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/mac1.png" alt=""></p>
+<p>它的base MAC是可以在neutron.conf中配置的：</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/mac2.png" alt=""></p>
+<p>继续查询流表2，表2是VXLAN表，如果是广播包就会查询表22，如果是单播包就查询表20：<br> cookie=0x0, duration=67601.554s, table=2, n_packets=176, n_bytes=16981, idle_age=20810, hard_age=65534, priority=0,dl_dst=00:00:00:00:00:00/01:00:00:00:00:00 actions=resubmit(,20)<br> cookie=0x0, duration=67601.406s, table=2, n_packets=92, n_bytes=7876, idle_age=1741, hard_age=65534, priority=0,dl_dst=01:00:00:00:00:00/01:00:00:00:00:00 actions=resubmit(,22)</p>
+<p>ICMP包是单播包，因此会查询表20，由于开启了L2 pop功能，在表20中会事先学习到应该转发到哪个VTEP。<br> cookie=0x0, duration=64076.431s, table=20, n_packets=0, n_bytes=0, idle_age=64076, priority=2,dl_vlan=2,dl_dst=fa:16:3e:13:55:66 actions=strip_vlan,set_tunnel:0x3eb,output:3<br> cookie=0x0, duration=66130.899s, table=20, n_packets=152, n_bytes=14728, idle_age=65534, hard_age=65534, priority=2,dl_vlan=1,dl_dst=fa:16:3e:9f:55:67 actions=strip_vlan,set_tunnel:0x3e9,output:3<br> cookie=0x0, duration=66560.59s, table=20, n_packets=7, n_bytes=552, idle_age=65534, hard_age=65534, priority=2,dl_vlan=1,dl_dst=fa:16:3e:da:e3:6e actions=strip_vlan,set_tunnel:0x3e9,output:2<br> cookie=0x0, duration=64436.717s, table=20, n_packets=0, n_bytes=0, idle_age=64436, priority=2,dl_vlan=1,dl_dst=fa:16:3e:14:b8:ec actions=strip_vlan,set_tunnel:0x3e9,output:4<br> cookie=0x0, duration=64015.308s, table=20, n_packets=0, n_bytes=0, idle_age=64015, priority=2,dl_vlan=2,dl_dst=fa:16:3e:51:99:b8 actions=strip_vlan,set_tunnel:0x3eb,output:4<br> cookie=0x0, duration=64032.699s, table=20, n_packets=9, n_bytes=917, idle_age=20810, priority=2,dl_vlan=2,dl_dst=fa:16:3e:bb:cf:66 actions=strip_vlan,set_tunnel:0x3eb,output:3<br> cookie=0x0, duration=67600.802s, table=20, n_packets=8, n_bytes=784, idle_age=65534, hard_age=65534, priority=0 actions=resubmit(,22)</p>
+<p>注：<br>由于L2 POP并不是本文的重点。因此不在此细说。如果有兴趣可以看以下blog:<br><a href="http://assafmuller.com/category/overlays/" target="_blank" rel="noopener">http://assafmuller.com/category/overlays/</a></p>
+<p>此时包会变成如下形式：<br>Dest IP: 10.0.2.5<br>Souce IP: 10.0.1.5<br>Dest MAC: MAC of 10.0.2.5<br>Source MAC: fa:16:3f:fe:49:e9</p>
+<p>之后包会从port 4发出：<br>root@dvr-compute1:~# ovs-vsctl show<br>67f121bd-cca7-41c2-95ab-23ed85d1305b<br>    Bridge br-tun<br>        Port patch-int<br>            Interface patch-int<br>                type: patch<br>                options: {peer=patch-tun}<br>        Port “vxlan-0ae09f91”<br>            Interface “vxlan-0ae09f91”<br>                type: vxlan<br>                options: {df_default=”true”, in_key=flow, local_ip=”10.224.159.141”, out_key=flow, remote_ip=”10.224.159.145”}<br>        Port “vxlan-0ae09f88”<br>            Interface “vxlan-0ae09f88”<br>                type: vxlan<br>                options: {df_default=”true”, in_key=flow, local_ip=”10.224.159.141”, out_key=flow, remote_ip=”10.224.159.136”}<br>        Port br-tun<br>            Interface br-tun<br>                type: internal</p>
+<p>OVS会将此包进行VXLAN封装，将L2帧分装到VXLAN中，包头如下：</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/vlan.png" alt=""></p>
+<p>OVS会将此包进行VXLAN封装，将L2帧分装到VXLAN中，包头如下：<br>本文并不想具体讨论VXLAN是如何封装的，简单的说就是讲二层帧封到了一个UDP包中。</p>
+<p>之后compute2会收到这个包，在compute2的br-tun上查询流表:<br>首先看一下接口情况：<br>root@dvr-compute2:~# ovs-ofctl show br-tun<br>OFPT_FEATURES_REPLY (xid=0x2): dpid:000062e9fb8b8f42<br>n_tables:254, n_buffers:256<br>capabilities: FLOW_STATS TABLE_STATS PORT_STATS QUEUE_STATS ARP_MATCH_IP<br>actions: OUTPUT SET_VLAN_VID SET_VLAN_PCP STRIP_VLAN SET_DL_SRC SET_DL_DST SET_NW_SRC SET_NW_DST SET_NW_TOS SET_TP_SRC SET_TP_DST ENQUEUE<br> 1(patch-int): addr:02:dc:f1:96:db:bd<br>     config:     0<br>     state:      0<br>     speed: 0 Mbps now, 0 Mbps max<br> 3(vxlan-0ae09f88): addr:b6:4b:d0:83:07:52<br>     config:     0<br>     state:      0<br>     speed: 0 Mbps now, 0 Mbps max<br> 4(vxlan-0ae09f8d): addr:12:e5:36:2c:1a:36<br>     config:     0<br>     state:      0<br>     speed: 0 Mbps now, 0 Mbps max<br> LOCAL(br-tun): addr:62:e9:fb:8b:8f:42<br>     config:     0<br>     state:      0<br>     speed: 0 Mbps now, 0 Mbps max<br>OFPT_GET_CONFIG_REPLY (xid=0x4): frags=normal miss_send_len=0</p>
+<p>在table0中可以看到，如果包是从外部发来的就会去查询表4：<br> cookie=0x0, duration=66293.658s, table=0, n_packets=31, n_bytes=3936, idle_age=22651, hard_age=65534, priority=1,in_port=3 actions=resubmit(,4)<br> cookie=0x0, duration=69453.368s, table=0, n_packets=103, n_bytes=9360, idle_age=22651, hard_age=65534, priority=1,in_port=1 actions=resubmit(,1)<br> cookie=0x0, duration=66292.808s, table=0, n_packets=20, n_bytes=1742, idle_age=3598, hard_age=65534, priority=1,in_port=4 actions=resubmit(,4)<br> cookie=0x0, duration=69455.675s, table=0, n_packets=5, n_bytes=390, idle_age=65534, hard_age=65534, priority=0 actions=drop</p>
+<p>在表4中，会将tun_id对应的改为本地vlan id，之后查询表9:<br> cookie=0x0, duration=65937.871s, table=4, n_packets=32, n_bytes=3653, idle_age=22651, hard_age=65534, priority=1,tun_id=0x3eb actions=mod_vlan_vid:3,resubmit(,9)<br> cookie=0x0, duration=66294.732s, table=4, n_packets=19, n_bytes=2025, idle_age=3598, hard_age=65534, priority=1,tun_id=0x3e9 actions=mod_vlan_vid:2,resubmit(,9)<br> cookie=0x0, duration=69455.115s, table=4, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=0 actions=drop</p>
+<p>在表9中，如果发现包的源地址是全局唯一并与计算节点绑定的MAC地址，就将其转发到br-int:<br> cookie=0x0, duration=69453.507s, table=9, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=1,dl_src=fa:16:3f:fe:49:e9 actions=output:1<br> cookie=0x0, duration=69453.782s, table=9, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=1,dl_src=fa:16:3f:72:3f:a7 actions=output:1<br> cookie=0x0, duration=69453.23s, table=9, n_packets=56, n_bytes=6028, idle_age=3598, hard_age=65534, priority=0 actions=resubmit(,10)</p>
+<p>由于我们的源MAC为fa:16:3f:fe:49:e9，我们的ICMP包就被转发到了br-int，之后查询br-int的流表：<br>在表0中，如果是全局唯一并与计算节点绑定的MAC地址就查询表1，否则就正常转发：<br> cookie=0x0, duration=70039.903s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=2,in_port=6,dl_src=fa:16:3f:72:3f:a7 actions=resubmit(,1)<br> cookie=0x0, duration=70039.627s, table=0, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=2,in_port=6,dl_src=fa:16:3f:fe:49:e9 actions=resubmit(,1)<br> cookie=0x0, duration=70040.053s, table=0, n_packets=166, n_bytes=15954, idle_age=4184, hard_age=65534, priority=1 actions=NORMAL</p>
+<p>在表1中，事先设定好了flow，如果目的MAC是发送给private2-compute2-VM，就将源MAC改为private2的网关MAC地址：<br> cookie=0x0, duration=66458.695s, table=1, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=4,dl_vlan=3,dl_dst=fa:16:3e:51:99:b8 actions=strip_vlan,mod_dl_src:fa:16:3e:69:b4:05,output:12<br> cookie=0x0, duration=66877.515s, table=1, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=4,dl_vlan=2,dl_dst=fa:16:3e:14:b8:ec actions=strip_vlan,mod_dl_src:fa:16:3e:66:13:af,output:9<br> cookie=0x0, duration=66877.369s, table=1, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=2,ip,dl_vlan=2,nw_dst=10.0.1.0/24 actions=strip_vlan,mod_dl_src:fa:16:3e:66:13:af,output:9<br> cookie=0x0, duration=66458.559s, table=1, n_packets=0, n_bytes=0, idle_age=65534, hard_age=65534, priority=2,ip,dl_vlan=3,nw_dst=10.0.2.0/24 actions=strip_vlan,mod_dl_src:fa:16:3e:69:b4:05,output:12</p>
+<p>还可以看到下面两条rule是网段flow的rule，他们的output是一个list，会将此包转发到所有连接到此network上。<br>如果所有的虚机的rule都已经事先设定好的话，这两条rule应该并没有实际作用，等到代码稳定后，这两条rule应该会被删除。</p>
+<p>经过br-int的流表后，包会变成如下形式：<br>Dest IP: 10.0.2.5<br>Souce IP: 10.0.1.5<br>Dest MAC: MAC of 10.0.2.5<br>Source MAC: fa:16:3e:69:b4:05(MAC of 10.0.2.1 网关地址)</p>
+<p>至此，虚机private2-compute2-VM就会收到来自private1-compute1-VM的包了。从通信的过程可以看到，跨网段的东西向流量没有经过网络节点。</p>
+<p>第二种情况 – 南北向流量(虚机有floating ip)<br>以虚机private1-compute1-VM对外通信为例，此虚机拥有floating ip:</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/interface-last.png" alt=""></p>
+<p>比如我们在虚机中ping 8.8.8.8 。首先在虚机中查询路由，和第一种情况一样，虚机会发送给网关。发送的包如下：<br>Dest IP: 8.8.8.8<br>Souce IP: 10.0.1.5<br>Dest MAC: MAC of 10.0.1.1<br>Source MAC: MAC of 10.0.1.5</p>
+<p>查看ip rule:<br>root@dvr-compute1:~# ip netns exec qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa ip rule<br>0: from all lookup local<br>32766: from all lookup main<br>32767: from all lookup default<br>32768: from 10.0.1.5 lookup 16<br>32769: from 10.0.2.3 lookup 16<br>167772417: from 10.0.1.1/24 lookup 167772417<br>167772417: from 10.0.1.1/24 lookup 167772417<br>167772673: from 10.0.2.1/24 lookup 167772673</p>
+<p>在main表中没有合适的路由：<br>root@dvr-compute1:~# ip netns exec qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa ip route list table main<br>10.0.1.0/24 dev qr-ddbdc784-d7 proto kernel scope link src 10.0.1.1<br>10.0.2.0/24 dev qr-001d0ed9-01 proto kernel scope link src 10.0.2.1<br>169.254.31.28/31 dev rfp-0fbb351e-a proto kernel scope link src 169.254.31.28</p>
+<p>由于包是从10.0.1.5发来的之后会查看table 16:<br>root@dvr-compute1:~# ip netns exec qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa ip route list table 16<br>default via 169.254.31.29 dev rfp-0fbb351e-a<br>包会命中这条路由。</p>
+<p>路由之后会通过netfilter的POSTROUTING链中进行SNAT：<br>root@dvr-compute1:~# ip netns exec qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa iptables -nvL -t nat<br>。。。<br>Chain neutron-l3-agent-float-snat (1 references)<br> pkts bytes target prot opt in out source destination<br>    0 0 SNAT all – <em> </em> 10.0.2.3 0.0.0.0/0 to:172.24.4.7<br>    0 0 SNAT all – <em> </em> 10.0.1.5 0.0.0.0/0 to:172.24.4.5<br>。。。</p>
+<p>之后就可以看到包会通过rfp-0fbb351e-a发送给169.254.31.29。</p>
+<p>端口rfp-0fbb351e-a和fpr-0fbb351e-a是一对veth pair。在fip namespace中你可以看到这个接口：<br>root@dvr-compute1:~# ip netns exec fip-fbd46644-c70f-4227-a414-862a00cbd1d2 ifconfig<br>fg-081d537b-06 Link encap:Ethernet  HWaddr fa:16:3e:a4:eb:6b<br>          inet addr:172.24.4.6  Bcast:172.24.4.255  Mask:255.255.255.0<br>          inet6 addr: fe80::f816:3eff:fea4:eb6b/64 Scope:Link<br>          UP BROADCAST RUNNING  MTU:1500  Metric:1<br>          RX packets:0 errors:0 dropped:0 overruns:0 frame:0<br>          TX packets:50 errors:0 dropped:0 overruns:0 carrier:0<br>          collisions:0 txqueuelen:0<br>          RX bytes:0 (0.0 B)  TX bytes:2512 (2.5 KB)</p>
+<p>fpr-0fbb351e-a Link encap:Ethernet  HWaddr 42:0d:9f:49:63:c6<br>          inet addr:169.254.31.29  Bcast:0.0.0.0  Mask:255.255.255.254<br>          inet6 addr: fe80::400d:9fff:fe49:63c6/64 Scope:Link<br>          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1<br>          RX packets:12 errors:0 dropped:0 overruns:0 frame:0<br>          TX packets:12 errors:0 dropped:0 overruns:0 carrier:0<br>          collisions:0 txqueuelen:1000<br>          RX bytes:1116 (1.1 KB)  TX bytes:1116 (1.1 KB)</p>
+<p>lo        Link encap:Local Loopback<br>          inet addr:127.0.0.1  Mask:255.0.0.0<br>          inet6 addr: ::1/128 Scope:Host<br>          UP LOOPBACK RUNNING  MTU:65536  Metric:1<br>          RX packets:13 errors:0 dropped:0 overruns:0 frame:0<br>          TX packets:13 errors:0 dropped:0 overruns:0 carrier:0<br>          collisions:0 txqueuelen:0<br>          RX bytes:1250 (1.2 KB)  TX bytes:1250 (1.2 KB)</p>
+<p>到了fip的namespace之后，会查询路由， 这里有通往公网的默认路由：<br>root@dvr-compute1:~# ip netns exec fip-fbd46644-c70f-4227-a414-862a00cbd1d2 ip route<br>default via 172.24.4.1 dev fg-081d537b-06<br>169.254.31.28/31 dev fpr-0fbb351e-a proto kernel scope link src 169.254.31.29<br>172.24.4.0/24 dev fg-081d537b-06 proto kernel scope link src 172.24.4.6<br>172.24.4.5 via 169.254.31.28 dev fpr-0fbb351e-a<br>172.24.4.7 via 169.254.31.28 dev fpr-0fbb351e-a</p>
+<p>通过fg-081d537b-06 发送到br-ex。这是从虚机发送到公网的过程。</p>
+<p>反过来，从外网发起连接到虚机时，在fip的namespace会做arp代理：<br>root@dvr-compute1:~# ip netns exec fip-fbd46644-c70f-4227-a414-862a00cbd1d2 sysctl net.ipv4.conf.fg-081d537b-06.proxy_arp<br>net.ipv4.conf.fg-081d537b-06.proxy_arp = 1</p>
+<p>可以看到接口的arp代理是打开的，对于floating ip 有以下两条路由：<br>root@dvr-compute1:~# ip netns exec fip-fbd46644-c70f-4227-a414-862a00cbd1d2 ip route<br>。。。<br>172.24.4.5 via 169.254.31.28 dev fpr-0fbb351e-a<br>172.24.4.7 via 169.254.31.28 dev fpr-0fbb351e-a<br>。。。</p>
+<p>ARP会去通过VETH Pair到IR的namespace中去查询，在IR中可以看到，接口rfp-0fbb351e-a配置了floating ip:<br>root@dvr-compute1:~# ip netns exec qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa ip addr<br>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default<br>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00<br>    inet 127.0.0.1/8 scope host lo<br>       valid_lft forever preferred_lft forever<br>    inet6 ::1/128 scope host<br>       valid_lft forever preferred_lft forever<br>2: rfp-0fbb351e-a: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP group default qlen 1000<br>    link/ether ea:5c:56:9a:36:9c brd ff:ff:ff:ff:ff:ff<br>    inet 169.254.31.28/31 scope global rfp-0fbb351e-a<br>       valid_lft forever preferred_lft forever<br>    inet 172.24.4.5/32 brd 172.24.4.5 scope global rfp-0fbb351e-a<br>       valid_lft forever preferred_lft forever<br>    inet 172.24.4.7/32 brd 172.24.4.7 scope global rfp-0fbb351e-a<br>       valid_lft forever preferred_lft forever<br>    inet6 fe80::e85c:56ff:fe9a:369c/64 scope link<br>       valid_lft forever preferred_lft forever<br>17: qr-ddbdc784-d7: &lt;BROADCAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN group default<br>    link/ether fa:16:3e:66:13:af brd ff:ff:ff:ff:ff:ff<br>    inet 10.0.1.1/24 brd 10.0.1.255 scope global qr-ddbdc784-d7<br>       valid_lft forever preferred_lft forever<br>    inet6 fe80::f816:3eff:fe66:13af/64 scope link<br>       valid_lft forever preferred_lft forever<br>19: qr-001d0ed9-01: &lt;BROADCAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN group default<br>    link/ether fa:16:3e:69:b4:05 brd ff:ff:ff:ff:ff:ff<br>    inet 10.0.2.1/24 brd 10.0.2.255 scope global qr-001d0ed9-01<br>       valid_lft forever preferred_lft forever<br>    inet6 fe80::f816:3eff:fe69:b405/64 scope link<br>       valid_lft forever preferred_lft forever</p>
+<p>因此fip的namespace会对这两个floating ip进行ARP回应。</p>
+<p>外部发起目标地址为floating ip的请求后，fip会将其转发到IR中，IR的RPOROUTING链中规则如下：<br>root@dvr-compute1:~# ip netns exec qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa iptables -nvL -t nat<br>。。。<br>Chain neutron-l3-agent-PREROUTING (1 references)<br> pkts bytes target prot opt in out source destination<br>    0 0 REDIRECT tcp – <em> </em> 0.0.0.0/0 169.254.169.254 tcp dpt:80 redir ports 9697<br>    0 0 DNAT all – <em> </em> 0.0.0.0/0 172.24.4.7 to:10.0.2.3<br>    0 0 DNAT all – <em> </em> 0.0.0.0/0 172.24.4.5 to:10.0.1.5<br>。。。</p>
+<p>这条DNAT规则会将floating ip地址转换为内部地址，之后进行路由查询：<br>root@dvr-compute1:~# ip netns exec qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa ip route<br>10.0.1.0/24 dev qr-ddbdc784-d7 proto kernel scope link src 10.0.1.1<br>10.0.2.0/24 dev qr-001d0ed9-01 proto kernel scope link src 10.0.2.1<br>169.254.31.28/31 dev rfp-0fbb351e-a proto kernel scope link src 169.254.31.28</p>
+<p>目的地址是10.0.1.0/24网段的，因此会从qr-ddbdc784-d7转发出去。之后就会转发到br-int再到虚机。</p>
+<p>第三种情况 – 南北向流量(虚机没有floating ip)<br>在虚机没有floating ip的情况下，从虚机发出的包会首先到IR，IR中查询路由：<br>root@dvr-compute1:~# ip netns exec qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa ip rule<br>0: from all lookup local<br>32766: from all lookup main<br>32767: from all lookup default<br>32768: from 10.0.1.5 lookup 16<br>32769: from 10.0.2.3 lookup 16<br>167772417: from 10.0.1.1/24 lookup 167772417<br>167772417: from 10.0.1.1/24 lookup 167772417<br>167772673: from 10.0.2.1/24 lookup 167772673</p>
+<p>会先查询main表，之后查询167772417表。<br>root@dvr-compute1:~# ip netns exec qrouter-0fbb351e-a65b-4790-a409-8fb219ce16aa ip route list table 167772417<br>default via 10.0.1.6 dev qr-ddbdc784-d7</p>
+<p>这个表会将其转发给10.0.1.6,而这个IP就是在network node上的router_centralized_snat接口。</p>
+<p>在network node的snat namespace中，我们可以看到这个接口：<br>stack@dvr-controller:/root$ sudo ip netns exec snat-0fbb351e-a65b-4790-a409-8fb219ce16aa ifconfig<br>lo        Link encap:Local Loopback<br>          inet addr:127.0.0.1  Mask:255.0.0.0<br>          inet6 addr: ::1/128 Scope:Host<br>          UP LOOPBACK RUNNING  MTU:65536  Metric:1<br>          RX packets:0 errors:0 dropped:0 overruns:0 frame:0<br>          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0<br>          collisions:0 txqueuelen:0<br>          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)</p>
+<p>qg-4d15b7f6-cb Link encap:Ethernet  HWaddr fa:16:3e:24:0b:6b<br>          inet addr:172.24.4.4  Bcast:172.24.4.255  Mask:255.255.255.0<br>          inet6 addr: fe80::f816:3eff:fe24:b6b/64 Scope:Link<br>          UP BROADCAST RUNNING  MTU:1500  Metric:1<br>          RX packets:5 errors:0 dropped:0 overruns:0 frame:0<br>          TX packets:144 errors:0 dropped:0 overruns:0 carrier:0<br>          collisions:0 txqueuelen:0<br>          RX bytes:210 (210.0 B)  TX bytes:13320 (13.3 KB)</p>
+<p>sg-427653e4-a3 Link encap:Ethernet  HWaddr fa:16:3e:9f:55:67<br>          inet addr:10.0.1.6  Bcast:10.0.1.255  Mask:255.255.255.0<br>          inet6 addr: fe80::f816:3eff:fe9f:5567/64 Scope:Link<br>          UP BROADCAST RUNNING  MTU:1500  Metric:1<br>          RX packets:167 errors:0 dropped:0 overruns:0 frame:0<br>          TX packets:52 errors:0 dropped:0 overruns:0 carrier:0<br>          collisions:0 txqueuelen:0<br>          RX bytes:16260 (16.2 KB)  TX bytes:4460 (4.4 KB)</p>
+<p>sg-5df1ec71-d3 Link encap:Ethernet  HWaddr fa:16:3e:13:55:66<br>          inet addr:10.0.2.2  Bcast:10.0.2.255  Mask:255.255.255.0<br>          inet6 addr: fe80::f816:3eff:fe13:5566/64 Scope:Link<br>          UP BROADCAST RUNNING  MTU:1500  Metric:1<br>          RX packets:34 errors:0 dropped:0 overruns:0 frame:0<br>          TX packets:12 errors:0 dropped:0 overruns:0 carrier:0<br>          collisions:0 txqueuelen:0<br>          RX bytes:3412 (3.4 KB)  TX bytes:952 (952.0 B)</p>
+<p>stack@dvr-controller:/root$ sudo ip netns exec snat-0fbb351e-a65b-4790-a409-8fb219ce16aa iptables -nvL -t nat<br>。。。<br>Chain neutron-l3-agent-snat (1 references)<br> pkts bytes target prot opt in out source destination<br>    0 0 SNAT all – <em> </em> 10.0.1.0/24 0.0.0.0/0 to:172.24.4.4<br>    0 0 SNAT all – <em> </em> 10.0.2.0/24 0.0.0.0/0 to:172.24.4.4<br>。。。</p>
+<p>这里就和以前的L3类似，会将没有floating ip的包SNAT成一个172.24.4.4(DVR的网关臂)。这个过程是和以前L3类似的，不再累述。</p>
+<p>stack@dvr-controller:/root$ sudo ip netns exec snat-0fbb351e-a65b-4790-a409-8fb219ce16aa iptables -nvL -t nat<br>。。。<br>Chain neutron-l3-agent-snat (1 references)<br> pkts bytes target prot opt in out source destination<br>    0 0 SNAT all – <em> </em> 10.0.1.0/24 0.0.0.0/0 to:172.24.4.4<br>    0 0 SNAT all – <em> </em> 10.0.2.0/24 0.0.0.0/0 to:172.24.4.4<br>。。。</p>
+<p>这里就和以前的L3类似，会将没有floating ip的包SNAT成一个172.24.4.4(DVR的网关臂)。这个过程是和以前L3类似的，不再累述。</p>
+<hr>
+<p>原文：<a href="https://blog.csdn.net/matt_mao/article/details/39180135" target="_blank" rel="noopener">https://blog.csdn.net/matt_mao/article/details/39180135</a> </p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://jungler.com/2018/10/21/初探Openstack-Neutron-DVR/" data-id="cl4lc94a50019ptccya0sitvc" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Dave Chen"
+        },
+        "headline": "（转）初探Openstack Neutron DVR",
+        "image": "http://jungler.com/css/images/forward.jpg",
+        "keywords": "OpenStack",
+        "genre": "",
+        "datePublished": "2018-10-21",
+        "dateCreated": "2018-10-21",
+        "dateModified": "2022-06-19",
+        "url": "http://jungler.com/2018/10/21/初探Openstack-Neutron-DVR/",
+        "description": "这篇文章总结的很好了，偷懒直接转过来，以便日后不时查看。
+首先看一下，没有使用DVR的问题在哪里：
+
+从图中可以明显看到东西向和南北向的流量会集中到网络节点，这会使网络节点成为瓶颈。
+那如果启用的DVR，情况会变成如下：
+
+对于东西向的流量， 流量会直接在计算节点之间传递。对于南北向的流量，如果有floating ip，流量就直接走计算节点。如果没有floating ip，则会走网络节点。
+我的实",
+        "wordCount": 3495
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="stack-overflow" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-stack-overflow"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/chendave" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2018/11/04/OpenStack-归档-虚拟机临时存储与块存储/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            OpenStack 归档 - 虚拟机临时存储与块存储
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2018/10/06/Python基础-name-main/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">Python基础-__name__ == &#39;__main__&#39;</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2022/06/16/Kubernetes-metric-server简介/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/世博.jpg)" alt="Kubernetes - metric server简介" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2022/06/16/Kubernetes-metric-server简介/" class="title">Kubernetes - metric server简介</a></p>
+                            <p class="item-date"><time datetime="2022-06-16T08:24:28.000Z" itemprop="datePublished">2022-06-16</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/mid-autumn.jpg)" alt="Kubernetes - HA and LB cluster setup" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="title">Kubernetes - HA and LB cluster setup</a></p>
+                            <p class="item-date"><time datetime="2021-11-09T03:07:45.000Z" itemprop="datePublished">2021-11-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/绍兴.jpg)" alt="kubemark + perf_test(clusterloader) 本地性能测试的注意事项" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="title">kubemark + perf_test(clusterloader) 本地性能测试的注意事项</a></p>
+                            <p class="item-date"><time datetime="2021-09-21T04:35:43.000Z" itemprop="datePublished">2021-09-21</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/07/25/kubelet若干配置-待更新/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/西湖.jpg)" alt="kubelet若干配置-待更新" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/07/25/kubelet若干配置-待更新/" class="title">kubelet若干配置-待更新</a></p>
+                            <p class="item-date"><time datetime="2021-07-25T07:03:16.000Z" itemprop="datePublished">2021-07-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/崇明.jpg)" alt="Kubernetes-从APIServer到Kubelet" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="title">Kubernetes-从APIServer到Kubelet</a></p>
+                            <p class="item-date"><time datetime="2021-02-16T12:40:54.000Z" itemprop="datePublished">2021-02-16</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ceph/">Ceph</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kubernetes/">Kubernetes</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenStack/">OpenStack</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/Ceph/" style="font-size: 15px;">Ceph</a> <a href="/tags/Kubernetes/" style="font-size: 20px;">Kubernetes</a> <a href="/tags/OpenStack/" style="font-size: 20px;">OpenStack</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io">Hexo</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2022 Dave Chen</p>
+                
+                <p>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="https://github.com/ppoffice" target="_blank">PPOffice</a></p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://jungler.com/2018/10/21/初探Openstack-Neutron-DVR/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

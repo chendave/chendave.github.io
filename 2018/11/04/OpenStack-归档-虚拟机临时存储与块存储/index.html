@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    
+
+    
+    <title>OpenStack 归档 - 虚拟机临时存储与块存储 | 演好自己的戏，走好自己的路</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="OpenStack" />
+    
+    <meta name="description" content="总体来说，虚拟机内部的存储分临时存储与可拔插的块存储两部分，所谓临时存储既是指存储空间会随着虚拟机的创建而产生，删除而消亡。而块存储(volume)则可以将用户的数据保存下来，并可以attach到不通的虚机机上。 默认情况默认情况创建一个虚机只有一个盘，mount到root分区，看下下面的例子。 1nova boot default --image cirros-0.3.5-x86_64-disk">
+<meta name="keywords" content="OpenStack">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenStack 归档 - 虚拟机临时存储与块存储">
+<meta property="og:url" content="http://jungler.com/2018/11/04/OpenStack-归档-虚拟机临时存储与块存储/index.html">
+<meta property="og:site_name" content="演好自己的戏，走好自己的路">
+<meta property="og:description" content="总体来说，虚拟机内部的存储分临时存储与可拔插的块存储两部分，所谓临时存储既是指存储空间会随着虚拟机的创建而产生，删除而消亡。而块存储(volume)则可以将用户的数据保存下来，并可以attach到不通的虚机机上。 默认情况默认情况创建一个虚机只有一个盘，mount到root分区，看下下面的例子。 1nova boot default --image cirros-0.3.5-x86_64-disk">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://jungler.com/css/images/birthday.png">
+<meta property="og:updated_time" content="2022-06-19T11:49:19.353Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenStack 归档 - 虚拟机临时存储与块存储">
+<meta name="twitter:description" content="总体来说，虚拟机内部的存储分临时存储与可拔插的块存储两部分，所谓临时存储既是指存储空间会随着虚拟机的创建而产生，删除而消亡。而块存储(volume)则可以将用户的数据保存下来，并可以attach到不通的虚机机上。 默认情况默认情况创建一个虚机只有一个盘，mount到root分区，看下下面的例子。 1nova boot default --image cirros-0.3.5-x86_64-disk">
+<meta name="twitter:image" content="http://jungler.com/css/images/birthday.png">
+    
+
+    
+        <link rel="alternate" href="/" title="演好自己的戏，走好自己的路" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png" />
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+
+
+</head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">花生人的苟且人生</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    未分类
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-OpenStack-归档-虚拟机临时存储与块存储" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        OpenStack 归档 - 虚拟机临时存储与块存储
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2018/11/04/OpenStack-归档-虚拟机临时存储与块存储/" class="article-date">
+         <time datetime="2018-11-04T07:06:04.000Z" itemprop="datePublished">2018-11-04</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/OpenStack/">OpenStack</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p>总体来说，虚拟机内部的存储分临时存储与可拔插的块存储两部分，所谓临时存储既是指存储空间会随着虚拟机的创建而产生，删除而消亡。而块存储(volume)则可以将用户的数据保存下来，并可以attach到不通的虚机机上。</p>
+<h2 id="默认情况"><a href="#默认情况" class="headerlink" title="默认情况"></a>默认情况</h2><p>默认情况创建一个虚机只有一个盘，mount到root分区，看下下面的例子。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nova boot default --image cirros-0.3.5-x86_64-disk --flavor m1.small --nic net-name=private</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ sudo fdisk -l</span><br><span class="line"></span><br><span class="line">Disk /dev/vda: 21.5 GB, 21474836480 bytes</span><br><span class="line">255 heads, 63 sectors/track, 2610 cylinders, total 41943040 sectors</span><br><span class="line">Units = sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disk identifier: 0x00000000</span><br><span class="line"></span><br><span class="line">   Device Boot      Start         End      Blocks   Id  System</span><br><span class="line">/dev/vda1   *       16065    41929649    20956792+  83  Linux</span><br><span class="line">$ df -h</span><br><span class="line">Filesystem                Size      Used Available Use% Mounted on</span><br><span class="line">/dev                    998.3M         0    998.3M   0% /dev</span><br><span class="line">/dev/vda1                23.2M     18.0M      4.0M  82% /</span><br><span class="line">tmpfs                  1001.8M         0   1001.8M   0% /dev/shm</span><br><span class="line">tmpfs                   200.0K     68.0K    132.0K  34% /run</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ lsblk</span><br><span class="line">NAME   MAJ:MIN RM SIZE RO TYPE MOUNTPOINT</span><br><span class="line">vda    253:0    0  20G  0 disk</span><br><span class="line">`-vda1 253:1    0  20G  0 part /</span><br></pre></td></tr></table></figure>
+<h2 id="块设备"><a href="#块设备" class="headerlink" title="块设备"></a>块设备</h2><p>如果希望数据能持久的保存下来，即便虚拟机被删之后，还能找到在之前的数据，可以给虚拟机添加一个块设备。块设备由<em>Cinder</em>服务提供，可以将其理解为一块U盘，可以动态的拔插到的你的电脑上。如下，我们给虚拟机添加一个块设备<em>volume</em>。</p>
+<p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/attach_volume.png" alt=""></p>
+<p>再来看看虚拟机里的存储空间，我们会发现多出来一块盘。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">$ lsblk</span><br><span class="line">NAME   MAJ:MIN RM SIZE RO TYPE MOUNTPOINT</span><br><span class="line">vda    253:0    0  20G  0 disk</span><br><span class="line">`-vda1 253:1    0  20G  0 part /</span><br><span class="line">vdb    253:16   0   1G  0 disk</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$ sudo fdisk -l</span><br><span class="line"></span><br><span class="line">Disk /dev/vda: 21.5 GB, 21474836480 bytes</span><br><span class="line">255 heads, 63 sectors/track, 2610 cylinders, total 41943040 sectors</span><br><span class="line">Units = sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disk identifier: 0x00000000</span><br><span class="line"></span><br><span class="line">   Device Boot      Start         End      Blocks   Id  System</span><br><span class="line">/dev/vda1   *       16065    41929649    20956792+  83  Linux</span><br><span class="line"></span><br><span class="line">Disk /dev/vdb: 1073 MB, 1073741824 bytes</span><br><span class="line">16 heads, 63 sectors/track, 2080 cylinders, total 2097152 sectors</span><br><span class="line">Units = sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disk identifier: 0x00000000</span><br></pre></td></tr></table></figure>
+<h2 id="Ephemeral-与Swap"><a href="#Ephemeral-与Swap" class="headerlink" title="Ephemeral 与Swap"></a>Ephemeral 与Swap</h2><p>另外，可以根据需要在虚拟机里创建一些临时的分区/盘，但这些盘同样会时随着虚拟机的生命周期消亡而消亡。<br>首先创建一个flavor,</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ nova flavor-create --ephemeral 20 --swap 512 testeph 7 512 1 1</span><br><span class="line">+----+---------+-----------+------+-----------+------+-------+-------------+-----------+</span><br><span class="line">| ID | Name    | Memory_MB | Disk | Ephemeral | Swap | VCPUs | RXTX_Factor | Is_Public |</span><br><span class="line">+----+---------+-----------+------+-----------+------+-------+-------------+-----------+</span><br><span class="line">| 7  | testeph | 512       | 1    | 20        | 512  | 1     | 1.0         | True      |</span><br><span class="line">+----+---------+-----------+------+-----------+------+-------+-------------+-----------+</span><br></pre></td></tr></table></figure>
+<p>根据此flavor创建一个虚拟机:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">$ nova boot --image cirros-0.3.5-x86_64-disk --flavor 7 --nic net-name=private --ephemeral size=1 emph1 </span><br><span class="line"></span><br><span class="line">$ sudo fdisk -l</span><br><span class="line">	</span><br><span class="line">Disk /dev/vda: 1073 MB, 1073741824 bytes</span><br><span class="line">255 heads, 63 sectors/track, 130 cylinders, total 2097152 sectors</span><br><span class="line">Units = sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disk identifier: 0x00000000</span><br><span class="line"></span><br><span class="line">Device Boot      Start         End      Blocks   Id  System</span><br><span class="line">/dev/vda1   *       16065     2088449     1036192+  83  Linux</span><br><span class="line"></span><br><span class="line">Disk /dev/vdb: 1073 MB, 1073741824 bytes</span><br><span class="line">16 heads, 63 sectors/track, 2080 cylinders, total 2097152 sectors</span><br><span class="line">Units = sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disk identifier: 0x00000000</span><br><span class="line"></span><br><span class="line">Disk /dev/vdb doesn&apos;t contain a valid partition table</span><br><span class="line"></span><br><span class="line">Disk /dev/vdc: 536 MB, 536870912 bytes</span><br><span class="line">16 heads, 63 sectors/track, 1040 cylinders, total 1048576 sectors</span><br><span class="line">Units = sectors of 1 * 512 = 512 bytes</span><br><span class="line">Sector size (logical/physical): 512 bytes / 512 bytes</span><br><span class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</span><br><span class="line">Disk identifier: 0x00000000</span><br><span class="line"></span><br><span class="line">$ lsblk</span><br><span class="line">NAME   MAJ:MIN RM    SIZE RO TYPE MOUNTPOINT</span><br><span class="line">vda    253:0    0      1G  0 disk</span><br><span class="line">`-vda1 253:1    0 1011.9M  0 part /</span><br><span class="line">vdb    253:16   0      1G  0 disk /mnt</span><br><span class="line">vdc    253:32   0    512M  0 disk</span><br></pre></td></tr></table></figure>
+<p>可以看出，swap和ephemeral 是以独立的虚拟磁盘来呈现的。<em>disk.eph0</em> 与 <em>disk.swap</em> 都存放在虚拟机的目录下，这意味着虚拟机删除之后，这些文件也将随之被删除。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ls /opt/stack/data/nova/instances/29cc9a74-bebc-429d-a0b8-58fbfe89b2cd</span><br><span class="line">console.log  disk  disk.eph0  disk.info  disk.swap</span><br></pre></td></tr></table></figure>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://jungler.com/2018/11/04/OpenStack-归档-虚拟机临时存储与块存储/" data-id="cl4lc949j000dptccdgv13kp8" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Dave Chen"
+        },
+        "headline": "OpenStack 归档 - 虚拟机临时存储与块存储",
+        "image": "http://jungler.com/css/images/birthday.png",
+        "keywords": "OpenStack",
+        "genre": "",
+        "datePublished": "2018-11-04",
+        "dateCreated": "2018-11-04",
+        "dateModified": "2022-06-19",
+        "url": "http://jungler.com/2018/11/04/OpenStack-归档-虚拟机临时存储与块存储/",
+        "description": "总体来说，虚拟机内部的存储分临时存储与可拔插的块存储两部分，所谓临时存储既是指存储空间会随着虚拟机的创建而产生，删除而消亡。而块存储(volume)则可以将用户的数据保存下来，并可以attach到不通的虚机机上。
+默认情况默认情况创建一个虚机只有一个盘，mount到root分区，看下下面的例子。
+1nova boot default --image cirros-0.3.5-x86_64-disk",
+        "wordCount": 1054
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="stack-overflow" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-stack-overflow"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/chendave" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2018/12/31/日志迁移/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            Ceph 日志迁移
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2018/10/21/初探Openstack-Neutron-DVR/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">（转）初探Openstack Neutron DVR</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2022/06/16/Kubernetes-metric-server简介/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/世博.jpg)" alt="Kubernetes - metric server简介" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2022/06/16/Kubernetes-metric-server简介/" class="title">Kubernetes - metric server简介</a></p>
+                            <p class="item-date"><time datetime="2022-06-16T08:24:28.000Z" itemprop="datePublished">2022-06-16</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/mid-autumn.jpg)" alt="Kubernetes - HA and LB cluster setup" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="title">Kubernetes - HA and LB cluster setup</a></p>
+                            <p class="item-date"><time datetime="2021-11-09T03:07:45.000Z" itemprop="datePublished">2021-11-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/绍兴.jpg)" alt="kubemark + perf_test(clusterloader) 本地性能测试的注意事项" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="title">kubemark + perf_test(clusterloader) 本地性能测试的注意事项</a></p>
+                            <p class="item-date"><time datetime="2021-09-21T04:35:43.000Z" itemprop="datePublished">2021-09-21</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/07/25/kubelet若干配置-待更新/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/西湖.jpg)" alt="kubelet若干配置-待更新" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/07/25/kubelet若干配置-待更新/" class="title">kubelet若干配置-待更新</a></p>
+                            <p class="item-date"><time datetime="2021-07-25T07:03:16.000Z" itemprop="datePublished">2021-07-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/崇明.jpg)" alt="Kubernetes-从APIServer到Kubelet" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="title">Kubernetes-从APIServer到Kubelet</a></p>
+                            <p class="item-date"><time datetime="2021-02-16T12:40:54.000Z" itemprop="datePublished">2021-02-16</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ceph/">Ceph</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kubernetes/">Kubernetes</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenStack/">OpenStack</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/Ceph/" style="font-size: 15px;">Ceph</a> <a href="/tags/Kubernetes/" style="font-size: 20px;">Kubernetes</a> <a href="/tags/OpenStack/" style="font-size: 20px;">OpenStack</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io">Hexo</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2022 Dave Chen</p>
+                
+                <p>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="https://github.com/ppoffice" target="_blank">PPOffice</a></p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://jungler.com/2018/11/04/OpenStack-归档-虚拟机临时存储与块存储/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

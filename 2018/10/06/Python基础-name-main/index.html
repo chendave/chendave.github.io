@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    
+
+    
+    <title>Python基础-__name__ == &#39;__main__&#39; | 演好自己的戏，走好自己的路</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="Python" />
+    
+    <meta name="description" content="今年国庆节过的比较悠闲，中间只有一天来了一个短途去了苏州，其余大部分时间都是在家休息，这是我第二次去苏州，印象中对苏州园林的印象还一直来自于中学课本，园林应该是一个大的公园，有竹林，小桥，流水，假山，凉亭。算得上是一个自然景观吧。这次去亲身体验发现我的假设大部分还是对的，只是它不是一座公园，而是有钱人的私家宅院。读万卷书，行万里路，可见没有实践的永远不能保证是完全正确的，想象和现实总是有着各种差距">
+<meta name="keywords" content="Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python基础-__name__ == &#39;__main__&#39;">
+<meta property="og:url" content="http://jungler.com/2018/10/06/Python基础-name-main/index.html">
+<meta property="og:site_name" content="演好自己的戏，走好自己的路">
+<meta property="og:description" content="今年国庆节过的比较悠闲，中间只有一天来了一个短途去了苏州，其余大部分时间都是在家休息，这是我第二次去苏州，印象中对苏州园林的印象还一直来自于中学课本，园林应该是一个大的公园，有竹林，小桥，流水，假山，凉亭。算得上是一个自然景观吧。这次去亲身体验发现我的假设大部分还是对的，只是它不是一座公园，而是有钱人的私家宅院。读万卷书，行万里路，可见没有实践的永远不能保证是完全正确的，想象和现实总是有着各种差距">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://jungler.com/css/images/苏州.jpg">
+<meta property="og:updated_time" content="2022-06-19T11:49:19.353Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python基础-__name__ == &#39;__main__&#39;">
+<meta name="twitter:description" content="今年国庆节过的比较悠闲，中间只有一天来了一个短途去了苏州，其余大部分时间都是在家休息，这是我第二次去苏州，印象中对苏州园林的印象还一直来自于中学课本，园林应该是一个大的公园，有竹林，小桥，流水，假山，凉亭。算得上是一个自然景观吧。这次去亲身体验发现我的假设大部分还是对的，只是它不是一座公园，而是有钱人的私家宅院。读万卷书，行万里路，可见没有实践的永远不能保证是完全正确的，想象和现实总是有着各种差距">
+<meta name="twitter:image" content="http://jungler.com/css/images/苏州.jpg">
+    
+
+    
+        <link rel="alternate" href="/" title="演好自己的戏，走好自己的路" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png" />
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+
+
+</head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">花生人的苟且人生</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    未分类
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-Python基础-name-main" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        Python基础-__name__ == &#39;__main__&#39;
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2018/10/06/Python基础-name-main/" class="article-date">
+         <time datetime="2018-10-06T07:44:32.000Z" itemprop="datePublished">2018-10-06</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Python/">Python</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p>今年国庆节过的比较悠闲，中间只有一天来了一个短途去了苏州，其余大部分时间都是在家休息，这是我第二次去苏州，印象中对苏州园林的印象还一直来自于中学课本，园林应该是一个大的公园，有竹林，小桥，流水，假山，凉亭。算得上是一个自然景观吧。这次去亲身体验发现我的假设大部分还是对的，只是它不是一座公园，而是有钱人的私家宅院。读万卷书，行万里路，可见没有实践的永远不能保证是完全正确的，想象和现实总是有着各种差距。</p>
+<p>看了Pence的演讲，即便我无意于或者不忍于贬低自己的祖国，但却又无法说服自己这些个烂疮实实在在的存在于这个国度。无奈，无力，失语。但愿正如Pence引用的那句话，Heaven not only see the future, but also give us the hope!</p>
+<hr>
+<p>回过头来看看Python为什么需要__name__ == ‘__main__’？ 先看看两段代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># executor.py</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">entry</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">print</span> (<span class="string">"implement something here..."</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> (<span class="string">"do something here..."</span>)</span><br><span class="line"><span class="keyword">print</span> __name__</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># caller.py</span></span><br><span class="line"><span class="keyword">import</span> executor</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<p>如果直接运行第一段程序，我们将得到下面的结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;python executor.py</span><br><span class="line"><span class="keyword">do</span> something here...</span><br><span class="line">__main__</span><br></pre></td></tr></table></figure>
+<p>运行第二段程序输出下面的结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;python caller.py</span><br><span class="line"><span class="keyword">do</span> something here...</span><br><span class="line">executor</span><br></pre></td></tr></table></figure>
+<p>这里我们得出两条结论：<br>1）Python里可以直接在模块里写不属于任何function的语句，例如第一段程序里的两个print语句，这个有点类似shell，而不同于java或者c语言，这些语句无论在本模块被执行或者被import到其它python文件中去，都会被自动执行，这有时不是我们希望看到的。而实际上这些语句常常被理解为Python的main函数。我们可以忽略所谓的main函数，因为这对于我们的理解无益，但是我们可以将其改写为下面的形式：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># executor.py</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">entry</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">print</span> (<span class="string">"implement something here..."</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">print</span> (<span class="string">"do something here..."</span>)</span><br><span class="line">    <span class="keyword">print</span> __name__</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+<p>这样以第一种方式直接执行此文件，得到的将是相同的结果。</p>
+<p>2）__name__被解释为不同的名字，第一种方式被解释为__main__, 而第二种被解释为executor，所以当我们将程序改写为上面的形式的时候，main中的定义的语句这次将得不到执行。这时候将没有任何输出。但同时可以通过显示的调用<em>executor.main()</em>来让这两行语句得到执行。</p>
+<p>所以，python程序中if __name__ == ‘__main__’ 这行语句的目的就是希望有些语句能有条件的得到执行，或者说只有本模块直接运行时才会被调用。这样保证了此模块被其它模块引入时这些语句不会被调用，即便它时所谓的main函数。<br>那什么时候需要用这样的语句呢？一个典型的例子比如在做模块的单元测试的时候。</p>
+<hr>
+<p>[1] <a href="https://interactivepython.org/runestone/static/CS152f17/Functions/mainfunction.html" target="_blank" rel="noopener">https://interactivepython.org/runestone/static/CS152f17/Functions/mainfunction.html</a></p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://jungler.com/2018/10/06/Python基础-name-main/" data-id="cl4lc949h000aptccrdw9exmb" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Dave Chen"
+        },
+        "headline": "Python基础-__name__ == &#39;__main__&#39;",
+        "image": "http://jungler.com/css/images/苏州.jpg",
+        "keywords": "Python",
+        "genre": "",
+        "datePublished": "2018-10-06",
+        "dateCreated": "2018-10-06",
+        "dateModified": "2022-06-19",
+        "url": "http://jungler.com/2018/10/06/Python基础-name-main/",
+        "description": "今年国庆节过的比较悠闲，中间只有一天来了一个短途去了苏州，其余大部分时间都是在家休息，这是我第二次去苏州，印象中对苏州园林的印象还一直来自于中学课本，园林应该是一个大的公园，有竹林，小桥，流水，假山，凉亭。算得上是一个自然景观吧。这次去亲身体验发现我的假设大部分还是对的，只是它不是一座公园，而是有钱人的私家宅院。读万卷书，行万里路，可见没有实践的永远不能保证是完全正确的，想象和现实总是有着各种差距",
+        "wordCount": 204
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="stack-overflow" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-stack-overflow"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/chendave" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2018/10/21/初探Openstack-Neutron-DVR/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            （转）初探Openstack Neutron DVR
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2018/09/24/系统重启后恢复OpenStack网络设置-tips/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">系统重启后恢复OpenStack网络设置-tips</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2022/06/16/Kubernetes-metric-server简介/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/世博.jpg)" alt="Kubernetes - metric server简介" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2022/06/16/Kubernetes-metric-server简介/" class="title">Kubernetes - metric server简介</a></p>
+                            <p class="item-date"><time datetime="2022-06-16T08:24:28.000Z" itemprop="datePublished">2022-06-16</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/mid-autumn.jpg)" alt="Kubernetes - HA and LB cluster setup" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="title">Kubernetes - HA and LB cluster setup</a></p>
+                            <p class="item-date"><time datetime="2021-11-09T03:07:45.000Z" itemprop="datePublished">2021-11-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/绍兴.jpg)" alt="kubemark + perf_test(clusterloader) 本地性能测试的注意事项" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="title">kubemark + perf_test(clusterloader) 本地性能测试的注意事项</a></p>
+                            <p class="item-date"><time datetime="2021-09-21T04:35:43.000Z" itemprop="datePublished">2021-09-21</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/07/25/kubelet若干配置-待更新/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/西湖.jpg)" alt="kubelet若干配置-待更新" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/07/25/kubelet若干配置-待更新/" class="title">kubelet若干配置-待更新</a></p>
+                            <p class="item-date"><time datetime="2021-07-25T07:03:16.000Z" itemprop="datePublished">2021-07-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/崇明.jpg)" alt="Kubernetes-从APIServer到Kubelet" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="title">Kubernetes-从APIServer到Kubelet</a></p>
+                            <p class="item-date"><time datetime="2021-02-16T12:40:54.000Z" itemprop="datePublished">2021-02-16</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ceph/">Ceph</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kubernetes/">Kubernetes</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenStack/">OpenStack</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/Ceph/" style="font-size: 15px;">Ceph</a> <a href="/tags/Kubernetes/" style="font-size: 20px;">Kubernetes</a> <a href="/tags/OpenStack/" style="font-size: 20px;">OpenStack</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io">Hexo</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2022 Dave Chen</p>
+                
+                <p>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="https://github.com/ppoffice" target="_blank">PPOffice</a></p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://jungler.com/2018/10/06/Python基础-name-main/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

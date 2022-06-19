@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    
+
+    
+    <title>Kubernetes 环境搭建与 proxy设置 | 演好自己的戏，走好自己的路</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="Kubernetes" />
+    
+    <meta name="description" content="从18年开始，计划投入大力气学习Kubernetes，毕竟还是想走云计算这条路，当技术变革来临之时，与其被拍在沙滩上还不如伸开双手去拥抱。 既然下定决心去学习Kubernetes，那就得脚踏实地的去做点事情，搭建一个实验的Kubernetes 集群算作是第一步吧。 为什么要设置代理接触到第一个部署Kubernetes的工具是kubeadm，用Kubernetes 搭建一个集群官网[1]有比较详细的">
+<meta name="keywords" content="Kubernetes">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernetes 环境搭建与 proxy设置">
+<meta property="og:url" content="http://jungler.com/2018/04/06/Kubernetes-环境搭建与-proxy设置/index.html">
+<meta property="og:site_name" content="演好自己的戏，走好自己的路">
+<meta property="og:description" content="从18年开始，计划投入大力气学习Kubernetes，毕竟还是想走云计算这条路，当技术变革来临之时，与其被拍在沙滩上还不如伸开双手去拥抱。 既然下定决心去学习Kubernetes，那就得脚踏实地的去做点事情，搭建一个实验的Kubernetes 集群算作是第一步吧。 为什么要设置代理接触到第一个部署Kubernetes的工具是kubeadm，用Kubernetes 搭建一个集群官网[1]有比较详细的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://jungler.com/css/images/鲁迅公园.jpg">
+<meta property="og:updated_time" content="2022-06-19T11:49:19.349Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kubernetes 环境搭建与 proxy设置">
+<meta name="twitter:description" content="从18年开始，计划投入大力气学习Kubernetes，毕竟还是想走云计算这条路，当技术变革来临之时，与其被拍在沙滩上还不如伸开双手去拥抱。 既然下定决心去学习Kubernetes，那就得脚踏实地的去做点事情，搭建一个实验的Kubernetes 集群算作是第一步吧。 为什么要设置代理接触到第一个部署Kubernetes的工具是kubeadm，用Kubernetes 搭建一个集群官网[1]有比较详细的">
+<meta name="twitter:image" content="http://jungler.com/css/images/鲁迅公园.jpg">
+    
+
+    
+        <link rel="alternate" href="/" title="演好自己的戏，走好自己的路" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png" />
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+
+
+</head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">花生人的苟且人生</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    未分类
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-Kubernetes-环境搭建与-proxy设置" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        Kubernetes 环境搭建与 proxy设置
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2018/04/06/Kubernetes-环境搭建与-proxy设置/" class="article-date">
+         <time datetime="2018-04-06T14:53:38.000Z" itemprop="datePublished">2018-04-06</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Kubernetes/">Kubernetes</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/鲁迅公园.jpg" alt=""><br>从18年开始，计划投入大力气学习Kubernetes，毕竟还是想走云计算这条路，当技术变革来临之时，与其被拍在沙滩上还不如伸开双手去拥抱。</p>
+<p>既然下定决心去学习Kubernetes，那就得脚踏实地的去做点事情，搭建一个实验的Kubernetes 集群算作是第一步吧。</p>
+<h2 id="为什么要设置代理"><a href="#为什么要设置代理" class="headerlink" title="为什么要设置代理"></a>为什么要设置代理</h2><p>接触到第一个部署Kubernetes的工具是kubeadm，用Kubernetes 搭建一个集群官网[1]有比较详细的描述，步骤也比较简单，这里不打算重复kubeadm的几个命令，而是着重吐槽一下有关代理设置这一问题，在我们伟大的祖国，想做点事，代理就越发凸显出它的重要性，谁让这些开源技术都是人家美帝弄出来的？言归正传，搭建Kubernetes 必须要用到proxy，这是因为很多docker的image都是由Google在维护，即便不是，为了image的下载速度还可以接受，我们也得有个梯子。</p>
+<h3 id="设置终端代理"><a href="#设置终端代理" class="headerlink" title="设置终端代理"></a>设置终端代理</h3><p>在执行<strong>kubeadm init</strong>去初始化master节点之前，用下面的命令去设置终端代理：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> http_proxy=http://<span class="variable">$username</span>:<span class="variable">$password</span>@<span class="variable">$proxy_host</span>:<span class="variable">$port</span></span><br><span class="line">$ <span class="built_in">export</span> https_proxy=https://<span class="variable">$username</span>:<span class="variable">$password</span>@<span class="variable">$proxy_host</span>:<span class="variable">$port</span></span><br><span class="line">$ <span class="built_in">export</span> no_proxy=127.0.0.1,localhost,192.168.2.100</span><br></pre></td></tr></table></figure></p>
+<p>192.168.2.100是master节点的物理IP。</p>
+<h3 id="设置docker的代理"><a href="#设置docker的代理" class="headerlink" title="设置docker的代理"></a>设置docker的代理</h3><p>初始化的过程中是要通过docker去下载image，没有代理去下载？你就去等吧，等吧，终于等到timeout。</p>
+<p>可以去docker的官网去看如何为docker设置代理，这里记录我在实验环境里的设置，或许还需要用相同的方式创建一个https的proxy文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir -p /etc/systemd/system/docker.service.d</span><br><span class="line"></span><br><span class="line">$ cat /etc/systemd/system/docker.service.d/http-proxy.conf</span><br><span class="line"></span><br><span class="line">[Service]     </span><br><span class="line">Environment=<span class="string">"HTTP_PROXY=http://<span class="variable">$username</span>:<span class="variable">$password</span>@<span class="variable">$proxy_host</span>:<span class="variable">$port</span>"</span> <span class="string">"NO_PROXY=localhost,127.0.0.1,192.168.2.100"</span></span><br></pre></td></tr></table></figure>
+<h3 id="初始化master节点"><a href="#初始化master节点" class="headerlink" title="初始化master节点"></a>初始化master节点</h3><p>既然代理都已经设置好了（其实这里有一个坑，很大的一个坑 ^^），来点真格的吧。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># kubeadm init --apiserver-advertise-address 192.168.2.100 --pod-network-cidr=10.244.0.0/16</span></span><br></pre></td></tr></table></figure>
+<p>给出来的是下面一堆输出：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[init] Using Kubernetes version: v1.9.3</span><br><span class="line">[init] Using Authorization modes: [Node RBAC]</span><br><span class="line">[preflight] Running pre-flight checks.</span><br><span class="line">        [WARNING FileExisting-crictl]: crictl not found <span class="keyword">in</span> system path</span><br><span class="line">        [WARNING HTTPProxyCIDR]: connection to <span class="string">"10.96.0.0/12"</span> uses proxy <span class="string">"http://\$username:\$password@\$proxy_host:<span class="variable">$port</span>"</span>. This may lead to malfunctional cluster setup. Make sure that Pod and Services IP ranges specified correctly as exceptions <span class="keyword">in</span> proxy configuration</span><br><span class="line">...</span><br><span class="line">You should now deploy a pod network to the cluster.</span><br><span class="line">Run <span class="string">"kubectl apply -f [podnetwork].yaml"</span> with one of the options listed at:</span><br><span class="line">  https://kubernetes.io/docs/concepts/cluster-administration/addons/</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">You can now join any number of machines by running the following on each node</span><br><span class="line">as root:</span><br><span class="line">  kubeadm join --token 5076b0.10c90eec17e4a2a3 192.168.2.100:6443 --discovery-token-ca-cert-hash sha256:b7cdd4209d7357a020d29ca92f9b99ce1b671cd2fe841ca24ff7114e50f8778f</span><br></pre></td></tr></table></figure></p>
+<p>嗯，虽然有两个warning，但还是命令执行成功了。十年来的IT“从业经验”告诉我，警告看的多了，你吓唬的了谁？你看不是最终还是成功了么？</p>
+<p>接着添加其它两个node节点到K8S的cluster里，还是成功！</p>
+<p>耍一把K8S的命令行工具，依然是成功！</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get nodes</span><br><span class="line">NAME        STATUS    ROLES     AGE       VERSION</span><br><span class="line">k8s-node1   Ready     &lt;none&gt;    10d       v1.9.6</span><br><span class="line">k8s-node2   Ready     &lt;none&gt;    8d        v1.9.3</span><br><span class="line">k8smaster   Ready     master    10d       v1.9.3</span><br></pre></td></tr></table></figure>
+<p>直到有一天我要去查看pod的日志文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl logs -f httpd-7448fc6b46-6pf7w</span><br><span class="line">	Error from server: Get https://192.168.18.111:10250/containerLogs/default/httpd-7448fc6b46-6pf7w/httpd?follow=<span class="literal">true</span>: cannotconnect</span><br></pre></td></tr></table></figure></p>
+<p>然而访问master节点上的日志却正常，pod也运行正常，通过curl也可以正常访问。</p>
+<p>尝试K8S的dashboard，虽然可以安装成功，但页面访问给出的也是一样的提示<strong>cannotconnect</strong>，百思不得其解啊，你到是为什么<strong>cannotconnect</strong>？！！ sun of the beach !!</p>
+<p>直觉告诉我，这又是一个proxy设置的问题，但无论如何也想不到错在哪里，终于有那么一天，当我老老实实的复盘时，我不得不再次审视那几个warning。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[preflight] Running pre-flight checks.</span><br><span class="line">        [WARNING FileExisting-crictl]: crictl not found <span class="keyword">in</span> system path</span><br><span class="line">        [WARNING HTTPProxyCIDR]: connection to <span class="string">"10.96.0.0/12"</span> uses proxy <span class="string">"http://\$username:\$password@\$proxy_host:<span class="variable">$port</span>"</span>. This may lead to malfunctional cluster setup. Make sure that Pod and Services IP ranges specified correctly as exceptions <span class="keyword">in</span> proxy configuration</span><br></pre></td></tr></table></figure></p>
+<p>恍然大悟，<strong>no_proxy</strong>, 不光是这里的”10.96.0.0/12”（虽然到现在我也不知道这个网络是给谁用的，-_-||），给docker设置proxy时，各个slave节点的IP也得在no_proxy的设置范围内，回过头来看，我们的proxy设置应该想像下面这样，其中192.168.18.111,192.168.18.75是slave节点的物理IP地址。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># 终端proxy</span></span><br><span class="line">$ <span class="built_in">export</span> no_proxy=127.0.0.1,localhost,192.168.2.100，192.168.18.111,10.96.0.0/12,192.168.18.75,10.244.0.0/16</span><br><span class="line"><span class="comment"># docker 代理</span></span><br><span class="line">$ cat /etc/systemd/system/docker.service.d/http-proxy.conf</span><br><span class="line"></span><br><span class="line">[Service]     </span><br><span class="line">Environment=<span class="string">"HTTP_PROXY=http://<span class="variable">$username</span>:<span class="variable">$password</span>@<span class="variable">$proxy_host</span>:<span class="variable">$port</span>"</span> <span class="string">"NO_PROXY=localhost,127.0.0.1,192.168.2.100，192.168.18.111,192.168.18.75,10.244.0.0/16"</span></span><br></pre></td></tr></table></figure>
+<p>通过下面的命令，让配置的代理生效：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl daemon-reload</span><br><span class="line">sudo systemctl restart docker</span><br></pre></td></tr></table></figure>
+<p>确认更新后的代理设置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl show docker --property Environment</span><br></pre></td></tr></table></figure>
+<p>再去试试CURL，dashboard，kubectl logs一切如你所愿！</p>
+<hr>
+<p>[1] <a href="https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm" target="_blank" rel="noopener">https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm</a></p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://jungler.com/2018/04/06/Kubernetes-环境搭建与-proxy设置/" data-id="cl4lc949c0005ptccff90pl5c" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Dave Chen"
+        },
+        "headline": "Kubernetes 环境搭建与 proxy设置",
+        "image": "http://jungler.com/css/images/鲁迅公园.jpg",
+        "keywords": "Kubernetes",
+        "genre": "",
+        "datePublished": "2018-04-06",
+        "dateCreated": "2018-04-06",
+        "dateModified": "2022-06-19",
+        "url": "http://jungler.com/2018/04/06/Kubernetes-环境搭建与-proxy设置/",
+        "description": "从18年开始，计划投入大力气学习Kubernetes，毕竟还是想走云计算这条路，当技术变革来临之时，与其被拍在沙滩上还不如伸开双手去拥抱。
+既然下定决心去学习Kubernetes，那就得脚踏实地的去做点事情，搭建一个实验的Kubernetes 集群算作是第一步吧。
+为什么要设置代理接触到第一个部署Kubernetes的工具是kubeadm，用Kubernetes 搭建一个集群官网[1]有比较详细的",
+        "wordCount": 506
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="stack-overflow" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-stack-overflow"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/chendave" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2018/04/14/openstack-queen/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            OpenStack Queen 版本变更概述
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2018/03/06/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">Hello World</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2022/06/16/Kubernetes-metric-server简介/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/世博.jpg)" alt="Kubernetes - metric server简介" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2022/06/16/Kubernetes-metric-server简介/" class="title">Kubernetes - metric server简介</a></p>
+                            <p class="item-date"><time datetime="2022-06-16T08:24:28.000Z" itemprop="datePublished">2022-06-16</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/mid-autumn.jpg)" alt="Kubernetes - HA and LB cluster setup" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="title">Kubernetes - HA and LB cluster setup</a></p>
+                            <p class="item-date"><time datetime="2021-11-09T03:07:45.000Z" itemprop="datePublished">2021-11-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/绍兴.jpg)" alt="kubemark + perf_test(clusterloader) 本地性能测试的注意事项" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="title">kubemark + perf_test(clusterloader) 本地性能测试的注意事项</a></p>
+                            <p class="item-date"><time datetime="2021-09-21T04:35:43.000Z" itemprop="datePublished">2021-09-21</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/07/25/kubelet若干配置-待更新/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/西湖.jpg)" alt="kubelet若干配置-待更新" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/07/25/kubelet若干配置-待更新/" class="title">kubelet若干配置-待更新</a></p>
+                            <p class="item-date"><time datetime="2021-07-25T07:03:16.000Z" itemprop="datePublished">2021-07-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/崇明.jpg)" alt="Kubernetes-从APIServer到Kubelet" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="title">Kubernetes-从APIServer到Kubelet</a></p>
+                            <p class="item-date"><time datetime="2021-02-16T12:40:54.000Z" itemprop="datePublished">2021-02-16</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ceph/">Ceph</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kubernetes/">Kubernetes</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenStack/">OpenStack</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/Ceph/" style="font-size: 15px;">Ceph</a> <a href="/tags/Kubernetes/" style="font-size: 20px;">Kubernetes</a> <a href="/tags/OpenStack/" style="font-size: 20px;">OpenStack</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io">Hexo</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2022 Dave Chen</p>
+                
+                <p>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="https://github.com/ppoffice" target="_blank">PPOffice</a></p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://jungler.com/2018/04/06/Kubernetes-环境搭建与-proxy设置/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+
+    
+  <url>
+    <loc>http://jungler.com/2022/06/16/Kubernetes-metric-server%E7%AE%80%E4%BB%8B/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>Kubernetes - metric server简介</title>
+        <pubTime>2022-06-16T08:24:28.000Z</pubTime>
+        
+        <tag>Kubernetes</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2021/02/16/Kubernetes-%E4%BB%8EAPIServer%E5%88%B0Kubelet/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>Kubernetes-从APIServer到Kubelet</title>
+        <pubTime>2021-02-16T12:40:54.000Z</pubTime>
+        
+        <tag>Kubernetes</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>Kubernetes - HA and LB cluster setup</title>
+        <pubTime>2021-11-09T03:07:45.000Z</pubTime>
+        
+        <tag>Kubernetes</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/04/30/OpenStack-SDN-namespace/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>OpenStack 与 SDN --- namespace</title>
+        <pubTime>2018-04-30T08:20:33.000Z</pubTime>
+        
+        <tag>OpenStack</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/10/06/Python%E5%9F%BA%E7%A1%80-name-main/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>Python基础-__name__ == '__main__'</title>
+        <pubTime>2018-10-06T07:44:32.000Z</pubTime>
+        
+        <tag>Python</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/11/04/OpenStack-%E5%BD%92%E6%A1%A3-%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B8%B4%E6%97%B6%E5%AD%98%E5%82%A8%E4%B8%8E%E5%9D%97%E5%AD%98%E5%82%A8/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>OpenStack 归档 - 虚拟机临时存储与块存储</title>
+        <pubTime>2018-11-04T07:06:04.000Z</pubTime>
+        
+        <tag>OpenStack</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/05/26/Python%E4%B8%8E%E5%8D%8F%E7%A8%8B/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>Python与协程</title>
+        <pubTime>2018-05-26T09:36:10.000Z</pubTime>
+        
+        <tag>Python</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/03/06/hello-world/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>Hello World</title>
+        <pubTime>2018-03-06T07:44:32.000Z</pubTime>
+        
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/06/23/PG%E5%BC%82%E5%B8%B8%E7%8A%B6%E6%80%81-active+undersized+degraded/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>PG 异常状态- active+undersized+degraded</title>
+        <pubTime>2018-06-23T08:53:31.000Z</pubTime>
+        
+        <tag>Ceph</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/05/20/kube-patch/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>Kubernetes Patch 学习小结</title>
+        <pubTime>2018-05-20T02:00:12.000Z</pubTime>
+        
+        <tag>Kubernetes</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2021/07/25/kubelet%E8%8B%A5%E5%B9%B2%E9%85%8D%E7%BD%AE-%E5%BE%85%E6%9B%B4%E6%96%B0/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>kubelet若干配置-待更新</title>
+        <pubTime>2021-07-25T07:03:16.000Z</pubTime>
+        
+        <tag>Kubernetes</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/07/28/neutron%E6%8E%A5%E5%8F%A3%E5%91%BD%E5%90%8D%E6%BD%9C%E8%A7%84%E5%88%99/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>Neutron接口命名规则</title>
+        <pubTime>2018-07-28T11:38:12.000Z</pubTime>
+        
+        <tag>OpenStack</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2021/09/21/kubemark-perf-test-clusterloader-%E6%9C%AC%E5%9C%B0%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>kubemark + perf_test(clusterloader) 本地性能测试的注意事项</title>
+        <pubTime>2021-09-21T04:35:43.000Z</pubTime>
+        
+        <tag>Kubernetes</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/06/18/%E5%88%9B%E5%BB%BAKubernetes-UI/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>Kubernetes Dashboard</title>
+        <pubTime>2018-06-18T04:32:53.000Z</pubTime>
+        
+        <tag>Kubernetes</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/04/14/openstack-queen/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>OpenStack Queen 版本变更概述</title>
+        <pubTime>2018-04-14T07:44:53.000Z</pubTime>
+        
+        <tag>OpenStack</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/04/21/where-is-my-data/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>我的数据在哪儿? - Ceph rbd image</title>
+        <pubTime>2018-04-21T05:06:14.000Z</pubTime>
+        
+        <tag>Ceph</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/12/31/%E6%97%A5%E5%BF%97%E8%BF%81%E7%A7%BB/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>Ceph 日志迁移</title>
+        <pubTime>2018-12-31T03:08:57.000Z</pubTime>
+        
+        <tag>Ceph</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/09/24/%E7%B3%BB%E7%BB%9F%E9%87%8D%E5%90%AF%E5%90%8E%E6%81%A2%E5%A4%8DOpenStack%E7%BD%91%E7%BB%9C%E8%AE%BE%E7%BD%AE-tips/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>系统重启后恢复OpenStack网络设置-tips</title>
+        <pubTime>2018-09-24T09:22:59.000Z</pubTime>
+        
+        <tag>OpenStack</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/07/01/%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%B8%8D%E9%80%9A%E7%9A%84%E5%87%A0%E4%B8%AA%E6%80%9D%E8%B7%AF%5B2%5D/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>虚拟机网络不通的几个思路[2]</title>
+        <pubTime>2018-07-01T09:14:52.000Z</pubTime>
+        
+        <tag>OpenStack</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/10/21/%E5%88%9D%E6%8E%A2Openstack-Neutron-DVR/</loc>
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <data>
+        <display>
+        <title>（转）初探Openstack Neutron DVR</title>
+        <pubTime>2018-10-21T07:26:18.000Z</pubTime>
+        
+        <tag>OpenStack</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+    
+  <url>
+    <loc>http://jungler.com/2018/08/11/DevStack%E6%BF%80%E6%B4%BBDVR%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE/</loc>
+    <lastmod>2022-06-19T11:49:19.349Z</lastmod>
+    <data>
+        <display>
+        <title>DevStack激活DVR相关配置</title>
+        <pubTime>2018-08-11T08:57:25.000Z</pubTime>
+        
+        <tag>OpenStack</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://jungler.com/2018/04/06/Kubernetes-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E-proxy%E8%AE%BE%E7%BD%AE/</loc>
+    <lastmod>2022-06-19T11:49:19.349Z</lastmod>
+    <data>
+        <display>
+        <title>Kubernetes 环境搭建与 proxy设置</title>
+        <pubTime>2018-04-06T14:53:38.000Z</pubTime>
+        
+        <tag>Kubernetes</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+</urlset>

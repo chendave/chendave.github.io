@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    
+
+    
+    <title>Kubernetes - metric server简介 | 演好自己的戏，走好自己的路</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="Kubernetes" />
+    
+    <meta name="description" content="关于metric server的一些随笔。 总得说来，metric server可以获取node和pod的使用了多少CPU或者memory的资源，其底层实现是通过cadvisor调用了runc的接口来读取例如CPU和memory的使用信息。 官网上的一个metric资源访问流。 安装apply -flink12345678910111213在测试场景下，我们还需要启动metric server的启">
+<meta name="keywords" content="Kubernetes">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernetes - metric server简介">
+<meta property="og:url" content="http://jungler.com/2022/06/16/Kubernetes-metric-server简介/index.html">
+<meta property="og:site_name" content="演好自己的戏，走好自己的路">
+<meta property="og:description" content="关于metric server的一些随笔。 总得说来，metric server可以获取node和pod的使用了多少CPU或者memory的资源，其底层实现是通过cadvisor调用了runc的接口来读取例如CPU和memory的使用信息。 官网上的一个metric资源访问流。 安装apply -flink12345678910111213在测试场景下，我们还需要启动metric server的启">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://jungler.com/css/images/世博.jpg">
+<meta property="og:updated_time" content="2022-06-19T11:49:19.353Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kubernetes - metric server简介">
+<meta name="twitter:description" content="关于metric server的一些随笔。 总得说来，metric server可以获取node和pod的使用了多少CPU或者memory的资源，其底层实现是通过cadvisor调用了runc的接口来读取例如CPU和memory的使用信息。 官网上的一个metric资源访问流。 安装apply -flink12345678910111213在测试场景下，我们还需要启动metric server的启">
+<meta name="twitter:image" content="http://jungler.com/css/images/世博.jpg">
+    
+
+    
+        <link rel="alternate" href="/" title="演好自己的戏，走好自己的路" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png" />
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+
+
+</head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">花生人的苟且人生</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    未分类
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-Kubernetes-metric-server简介" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        Kubernetes - metric server简介
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2022/06/16/Kubernetes-metric-server简介/" class="article-date">
+         <time datetime="2022-06-16T08:24:28.000Z" itemprop="datePublished">2022-06-16</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Kubernetes/">Kubernetes</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p>关于metric server的一些随笔。</p>
+<p>总得说来，metric server可以获取node和pod的使用了多少CPU或者memory的资源，其底层实现是通过cadvisor调用了runc的接口来读取例如CPU和memory的使用信息。</p>
+<p>官网上的一个metric资源访问流。<br><img src="https://github.com/chendave/chendave.github.io/raw/master/css/images/resource-pipeline.png" alt=""></p>
+<p><strong>安装</strong><br><figure class="highlight plain"><figcaption><span>apply -f</span><a href="https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml```" target="_blank" rel="noopener">link</a></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">在测试场景下，我们还需要启动metric server的启动命令行上加上 `kubelet-insecure-tls`参数以表示不需要对kubelet的证书进行校验。</span><br><span class="line"></span><br><span class="line">**验证**</span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">root@a010735:~# kubectl top nodes</span><br><span class="line">NAME      CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%</span><br><span class="line">a010735   372m         4%     6359Mi          40%</span><br><span class="line">root@a010735:~# kubectl top pods</span><br><span class="line">NAME                          CPU(cores)   MEMORY(bytes)</span><br><span class="line">init-demo                     0m           1Mi</span><br><span class="line">php-apache-6db6dccd7f-569pp   1m           14Mi</span><br></pre></td></tr></table></figure></p>
+<p><strong>源码分析（commit ID: bb893870b2）</strong>：</p>
+<ul>
+<li>API 注册：<br>apiserver启动后会注册metric server的endpoints, 项目地址为：<a href="https://github.com/kubernetes-sigs/metrics-server" target="_blank" rel="noopener">https://github.com/kubernetes-sigs/metrics-server</a>.</li>
+</ul>
+<p>对应的代码实现：<br><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">metrics-server/pkg/api/install.<span class="keyword">go</span></span><br><span class="line"><span class="comment">// Install builds the metrics for the metrics.k8s.io API, and then installs it into the given API metrics-server.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Install</span><span class="params">(m MetricsGetter, podMetadataLister cache.GenericLister, nodeLister corev1.NodeLister, server *genericapiserver.GenericAPIServer)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	node := newNodeMetrics(metrics.Resource(<span class="string">"nodemetrics"</span>), m, nodeLister)</span><br><span class="line">	pod := newPodMetrics(metrics.Resource(<span class="string">"podmetrics"</span>), m, podMetadataLister)</span><br><span class="line">	info := Build(pod, node)</span><br><span class="line">	<span class="keyword">return</span> server.InstallAPIGroup(&amp;info)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>访问的API具体地址：</p>
+<ul>
+<li>访问某一个pod的metric数据<br><a href="https://127.0.0.1:6443/apis/metrics.k8s.io/v1beta1/namespaces/default/pods/demo" target="_blank" rel="noopener">https://127.0.0.1:6443/apis/metrics.k8s.io/v1beta1/namespaces/default/pods/demo</a></li>
+<li>访问所有pods的metric数据<br><a href="https://127.0.0.1:6443/apis/metrics.k8s.io/v1beta1/namespaces/default/pods" target="_blank" rel="noopener">https://127.0.0.1:6443/apis/metrics.k8s.io/v1beta1/namespaces/default/pods</a></li>
+<li>访问某一个node的metric数据<br><a href="https://127.0.0.1:6443/apis/metrics.k8s.io/v1beta1/nodes/node1" target="_blank" rel="noopener">https://127.0.0.1:6443/apis/metrics.k8s.io/v1beta1/nodes/node1</a></li>
+<li>访问所有nodes的metric数据<br><a href="https://127.0.0.1:6443/apis/metrics.k8s.io/v1beta1/nodes" target="_blank" rel="noopener">https://127.0.0.1:6443/apis/metrics.k8s.io/v1beta1/nodes</a></li>
+</ul>
+<blockquote>
+<p><strong><em>NOTE:</em></strong> API的定义另一个项目里：<a href="https://github.com/kubernetes/metrics" target="_blank" rel="noopener">https://github.com/kubernetes/metrics</a>, metric-server相当于实现了该项目定义的API。</p>
+</blockquote>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">pkg/apis/metrics/register.<span class="keyword">go</span></span><br><span class="line"><span class="comment">// GroupName is the group name use in this package</span></span><br><span class="line"><span class="keyword">const</span> GroupName = <span class="string">"metrics.k8s.io"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// SchemeGroupVersion is group version used to register these objects</span></span><br><span class="line"><span class="keyword">var</span> SchemeGroupVersion = schema.GroupVersion&#123;Group: GroupName, Version: runtime.APIVersionInternal&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>数据存储<br>metric server用来存储node和pod的metric数据的数据结构：<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">metrics-server/pkg/storage/storage.<span class="keyword">go</span></span><br><span class="line"><span class="keyword">type</span> storage <span class="keyword">struct</span> &#123;</span><br><span class="line">	mu    sync.RWMutex</span><br><span class="line">	pods  podStorage</span><br><span class="line">	nodes nodeStorage</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>后面通过runc的接口获取到的数据会存储到这个数据结构中，并通过计算得到当前node或者pod的资源利用情况。metric server的定时任务每隔一定时间会调用scrape和store接口来刷新数据。</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">metrics-server/pkg/server/server.<span class="keyword">go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *server)</span> <span class="title">tick</span><span class="params">(ctx context.Context, startTime time.Time)</span></span> &#123;</span><br><span class="line">	s.tickStatusMux.Lock()</span><br><span class="line">	s.tickLastStart = startTime</span><br><span class="line">	s.tickStatusMux.Unlock()</span><br><span class="line"></span><br><span class="line">	ctx, cancelTimeout := context.WithTimeout(ctx, s.resolution)</span><br><span class="line">	<span class="keyword">defer</span> cancelTimeout()</span><br><span class="line"></span><br><span class="line">	klog.V(<span class="number">6</span>).InfoS(<span class="string">"Scraping metrics"</span>)</span><br><span class="line">	data := s.scraper.Scrape(ctx)</span><br><span class="line"></span><br><span class="line">	klog.V(<span class="number">6</span>).InfoS(<span class="string">"Storing metrics"</span>)</span><br><span class="line">	s.storage.Store(data)</span><br><span class="line"></span><br><span class="line">	collectTime := time.Since(startTime)</span><br><span class="line">	tickDuration.Observe(<span class="keyword">float64</span>(collectTime) / <span class="keyword">float64</span>(time.Second))</span><br><span class="line">	klog.V(<span class="number">6</span>).InfoS(<span class="string">"Scraping cycle complete"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>原始数据的收集的核心调用是通过<code>func (c *scraper) collectNode(ctx context.Context, node *corev1.Node) (*storage.MetricsBatch, error)</code>方法来获取数据并存入<code>storage.MetricsBatch</code>数据结构中。</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">metrics-server/pkg/scraper/scraper.<span class="keyword">go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *scraper)</span> <span class="title">Scrape</span><span class="params">(baseCtx context.Context)</span> *<span class="title">storage</span>.<span class="title">MetricsBatch</span></span> &#123;</span><br><span class="line">	…</span><br><span class="line">	<span class="keyword">for</span> _, node := <span class="keyword">range</span> nodes &#123;</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(node *corev1.Node)</span></span> &#123;</span><br><span class="line">			<span class="comment">// Prevents network congestion.</span></span><br><span class="line">			sleepDuration := time.Duration(rand.Intn(delayMs)) * time.Millisecond</span><br><span class="line">			time.Sleep(sleepDuration)</span><br><span class="line">			<span class="comment">// make the timeout a bit shorter to account for staggering, so we still preserve</span></span><br><span class="line">			<span class="comment">// the overall timeout</span></span><br><span class="line">			ctx, cancelTimeout := context.WithTimeout(baseCtx, c.scrapeTimeout-sleepDuration)</span><br><span class="line">			<span class="keyword">defer</span> cancelTimeout()</span><br><span class="line">			klog.V(<span class="number">2</span>).InfoS(<span class="string">"Scraping node"</span>, <span class="string">"node"</span>, klog.KObj(node))</span><br><span class="line">			&lt;mark&gt;m, err := c.collectNode(ctx, node)&lt;/mark&gt;</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				klog.ErrorS(err, <span class="string">"Failed to scrape node"</span>, <span class="string">"node"</span>, klog.KObj(node))</span><br><span class="line">			&#125;</span><br><span class="line">			responseChannel &lt;- m</span><br><span class="line">		&#125;(node)</span><br><span class="line">	&#125;</span><br><span class="line">	…</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里<code>collectNode</code>方法是通过kubelet连接到各个不同的node，通过<code>/metrics/resource</code> URI来读取数据。</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">metrics-server/pkg/scraper/client/resource/client.<span class="keyword">go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kc *kubeletClient)</span> <span class="title">GetMetrics</span><span class="params">(ctx context.Context, node *corev1.Node)</span> <span class="params">(*storage.MetricsBatch, error)</span></span> &#123;</span><br><span class="line">	port := kc.defaultPort</span><br><span class="line">	nodeStatusPort := <span class="keyword">int</span>(node.Status.DaemonEndpoints.KubeletEndpoint.Port)</span><br><span class="line">	...</span><br><span class="line">	url := url.URL&#123;</span><br><span class="line">		Scheme: kc.scheme,</span><br><span class="line">		Host:   net.JoinHostPort(addr, strconv.Itoa(port)),</span><br><span class="line">		&lt;strong&gt;Path:   "/metrics/resource",&lt;/strong&gt;</span><br><span class="line">	&#125;</span><br><span class="line">	...</span><br><span class="line">	<span class="keyword">return</span> kc.getMetrics(ctx, url.String(), node.Name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>/metrics/resource</code>这个URI对应的处理逻辑在kubelet中实现，<br><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">k8s.io/kubernetes/pkg/kubelet/server/server.<span class="keyword">go</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> resourceMetricsPath = <span class="string">"/metrics/resource"</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">InstallDefaultHandlers</span><span class="params">()</span></span> &#123;</span><br><span class="line">        …</span><br><span class="line">	s.addMetricsBucketMatcher(<span class="string">"metrics/resource"</span>)</span><br><span class="line">	resourceRegistry := compbasemetrics.NewKubeRegistry()</span><br><span class="line">	resourceRegistry.CustomMustRegister(collectors.&lt;mark&gt;NewResourceMetricsCollector&lt;/mark&gt;(s.resourceAnalyzer))</span><br><span class="line">	s.restfulCont.Handle(resourceMetricsPath,</span><br><span class="line">		compbasemetrics.HandlerFor(resourceRegistry, compbasemetrics.HandlerOpts&#123;ErrorHandling: compbasemetrics.ContinueOnError&#125;),</span><br><span class="line">	)</span><br><span class="line">	…</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>NewResourceMetricsCollector</code>返回<code>metrics.StableCollector</code>接口，metric主要通过实现接口中方法<code>CollectWithStability</code>来收集数据。</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">k8s.io/kubernetes/pkg/kubelet/metrics/collectors/resource_metrics.<span class="keyword">go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rc *resourceMetricsCollector)</span> <span class="title">CollectWithStability</span><span class="params">(ch <span class="keyword">chan</span>&lt;- metrics.Metric)</span></span> &#123;</span><br><span class="line">	...</span><br><span class="line">	statsSummary, err := rc.provider.GetCPUAndMemoryStats()  <span class="comment">// 1)</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		errorCount = <span class="number">1</span></span><br><span class="line">		klog.ErrorS(err, <span class="string">"Error getting summary for resourceMetric prometheus endpoint"</span>)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	rc.collectNodeCPUMetrics(ch, statsSummary.Node) <span class="comment">// 2)</span></span><br><span class="line">	rc.collectNodeMemoryMetrics(ch, statsSummary.Node) <span class="comment">// 3)</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _, pod := <span class="keyword">range</span> statsSummary.Pods &#123;</span><br><span class="line">		<span class="keyword">for</span> _, container := <span class="keyword">range</span> pod.Containers &#123;</span><br><span class="line">			rc.collectContainerStartTime(ch, pod, container)</span><br><span class="line">			rc.collectContainerCPUMetrics(ch, pod, container)</span><br><span class="line">			rc.collectContainerMemoryMetrics(ch, pod, container)</span><br><span class="line">		&#125;</span><br><span class="line">		rc.collectPodCPUMetrics(ch, pod) <span class="comment">// 4)</span></span><br><span class="line">		rc.collectPodMemoryMetrics(ch, pod) <span class="comment">// 5)</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>statsSummary, err := rc.provider.GetCPUAndMemoryStats() // 通过kubelet调用cadvisor方法读取CPU和memory的统计信息，包括node和active的容器。</li>
+<li>rc.collectNodeCPUMetrics(ch, statsSummary.Node) // 生成cpu的metric，计算方法：float64(*s.CPU.UsageCoreNanoSeconds)/float64(time.Second)</li>
+<li>rc.collectNodeMemoryMetrics(ch, statsSummary.Node) // 生成memory的metric，计算方法：float64(*s.Memory.WorkingSetBytes)</li>
+<li>rc.collectPodCPUMetrics(ch, pod) // 生成pod的CPU metric，计算方法：float64(*pod.CPU.UsageCoreNanoSeconds)/float64(time.Second)</li>
+<li>rc.collectPodMemoryMetrics(ch, pod) // 生成pod的memory metric，计算方法：float64(*pod.Memory.WorkingSetBytes) 对于pod上的每个容器也一并计算生成容器的开始时间以及CPU和memory的使用情况。</li>
+</ol>
+<p>深入看一下<code>statsSummary, err := rc.provider.GetCPUAndMemoryStats()</code>这个方法调用。总的说来，是通过调用cadvisor（cadvisor已经和kubelet集成）并最终调用runc的cgroup接口来读入数据。</p>
+<p>cadvisor将数据存放在cache中，这部分在kubelet中实现，<br><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">k8s.io/kubernetes/pkg/kubelet/stats/provider.<span class="keyword">go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getCgroupInfo</span><span class="params">(cadvisor cadvisor.Interface, containerName <span class="keyword">string</span>, updateStats <span class="keyword">bool</span>)</span> <span class="params">(*cadvisorapiv2.ContainerInfo, error)</span></span> &#123;</span><br><span class="line">	...</span><br><span class="line">	infoMap, err := &lt;mark&gt;cadvisor.ContainerInfoV2&lt;/mark&gt;(containerName, cadvisorapiv2.RequestOptions&#123;</span><br><span class="line">		IdType:    cadvisorapiv2.TypeName,</span><br><span class="line">		Count:     <span class="number">2</span>, <span class="comment">// 2 samples are needed to compute "instantaneous" CPU</span></span><br><span class="line">		Recursive: <span class="literal">false</span>,</span><br><span class="line">		MaxAge:    maxAge,</span><br><span class="line">	&#125;)</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>读取cache，开始和结束时间都置为空，实际上是读取了所有的数据。<br><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">github.com/google/cadvisor/manager/manager.<span class="keyword">go</span></span><br><span class="line">stats, err := m.memoryCache.RecentStats(name, nilTime, nilTime, options.Count)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>Cadvisor与runc</li>
+</ul>
+<p>Cadvisor也启动了一个定时任务，每隔一段时间会将最新的数据刷到内存中。<br><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">github.com/google/cadvisor/manager/container.<span class="keyword">go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(cd *containerData)</span> <span class="title">housekeepingTick</span><span class="params">(timer &lt;-<span class="keyword">chan</span> time.Time, longHousekeeping time.Duration)</span> <span class="title">bool</span></span></span><br></pre></td></tr></table></figure></p>
+<p>可以去看看数据是如何从cgroup接口获取的。<br><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(cd *containerData)</span> <span class="title">updateStats</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	stats, statsErr := &lt;mark&gt;cd.handler.GetStats()&lt;/mark&gt;</span><br><span class="line">	...</span><br><span class="line">	perfStatsErr := cd.perfCollector.UpdateStats(stats)</span><br><span class="line"></span><br><span class="line">	resctrlStatsErr := cd.resctrlCollector.UpdateStats(stats)		</span><br><span class="line">	...</span><br><span class="line">	err = cd.memoryCache.AddStats(&amp;cInfo, stats)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里handler根据底层runtime的不同调用有不同的具体实现，例如<code>containerd</code>或者<code>crio</code>，但是最后都会调入到<code>libcontainer</code>中去。</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">github.com/google/cadvisor/container/libcontainer/handler.<span class="keyword">go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *Handler)</span> <span class="title">GetStats</span><span class="params">()</span> <span class="params">(*info.ContainerStats, error)</span></span> &#123;</span><br><span class="line">	...</span><br><span class="line">	&lt;mark&gt;cgroupStats, err := h.cgroupManager.GetStats()&lt;/mark&gt;</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> !ignoreStatsError &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">		&#125;</span><br><span class="line">		klog.V(<span class="number">4</span>).Infof(<span class="string">"Ignoring errors when gathering stats for root cgroup since some controllers don't have stats on the root cgroup: %v"</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以打印出<code>h.cgroupManager</code>的path可以发现就本质就是cgroup的各个子系统。Cgroup manager可以是systemd，fs或者fs2等，以fs为例。<br><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">paths: <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span> [</span><br><span class="line">        <span class="string">"cpu"</span>: <span class="string">"/sys/fs/cgroup/cpu,cpuacct"</span>,</span><br><span class="line">        <span class="string">"memory"</span>: <span class="string">"/sys/fs/cgroup/memory"</span>,</span><br><span class="line">        <span class="string">"cpuacct"</span>: <span class="string">"/sys/fs/cgroup/cpu,cpuacct"</span>,</span><br><span class="line">        <span class="string">"blkio"</span>: <span class="string">"/sys/fs/cgroup/blkio"</span>,</span><br><span class="line">        <span class="string">"devices"</span>: <span class="string">"/sys/fs/cgroup/devices"</span>,</span><br><span class="line">]</span><br></pre></td></tr></table></figure></p>
+<p>libcontainer调用各个子系统的GetStats方法得到数据。<br><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">/<span class="keyword">go</span>/src/k8s.io/kubernetes/vendor/github.com/opencontainers/runc/libcontainer/cgroups/fs/fs.<span class="keyword">go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *manager)</span> <span class="title">GetStats</span><span class="params">()</span> <span class="params">(*cgroups.Stats, error)</span></span> &#123;</span><br><span class="line">	m.mu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> m.mu.Unlock()</span><br><span class="line">	&lt;mark&gt;stats := cgroups.NewStats()&lt;/mark&gt;</span><br><span class="line">	<span class="keyword">for</span> _, sys := <span class="keyword">range</span> subsystems &#123;</span><br><span class="line">		path := m.paths[sys.Name()]</span><br><span class="line">		<span class="keyword">if</span> path == <span class="string">""</span> &#123;</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> err := sys.GetStats(path, stats); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> stats, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>看看cpuacct是如何读取的数据，可以简单的理解为文件读取并做了一定的处理。<br><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">vendor/github.com/opencontainers/runc/libcontainer/cgroups/fs/cpuacct.<span class="keyword">go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *CpuacctGroup)</span> <span class="title">GetStats</span><span class="params">(path <span class="keyword">string</span>, stats *cgroups.Stats)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	...</span><br><span class="line">	totalUsage, err := fscommon.GetCgroupParamUint(path, <span class="string">"cpuacct.usage"</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	...</span><br><span class="line">	percpuUsage, err := getPercpuUsage(path)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>比方说我们可以在系统上读取<code>cpuacct.usage</code>或者<code>cpuacct.usage_percpu</code>。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/sys/fs/cgroup/cpu,cpuacct<span class="comment"># cat cpuacct.usage</span></span><br><span class="line">5842504834476978</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>Metric 与 kubectl<br>当一个CLI的命令例如：<code>kubectl top node</code>发出之后，首先进入的入口定义在这里，<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">k8s.io/kubectl/pkg/cmd/top/top.<span class="keyword">go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewCmdTop</span><span class="params">(f cmdutil.Factory, streams genericclioptions.IOStreams)</span> *<span class="title">cobra</span>.<span class="title">Command</span></span> &#123;</span><br><span class="line">	cmd := &amp;cobra.Command&#123;</span><br><span class="line">		Use:   <span class="string">"top"</span>,</span><br><span class="line">		Short: i18n.T(<span class="string">"Display resource (CPU/memory) usage"</span>),</span><br><span class="line">		Long:  topLong,</span><br><span class="line">		Run:   cmdutil.DefaultSubCommandRun(streams.ErrOut),</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// create subcommands</span></span><br><span class="line">	&lt;mark&gt;cmd.AddCommand(NewCmdTopNode(f, nil, streams))&lt;/mark&gt;</span><br><span class="line">	&lt;mark&gt;cmd.AddCommand(NewCmdTopPod(f, nil, streams))&lt;/mark&gt;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> cmd</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>调用api接口获取数据然后打印数据到终端，<br><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">k8s.io/kubectl/pkg/metricsutil/metrics_printer.<span class="keyword">go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">printMetricsLine</span><span class="params">(out io.Writer, metrics *ResourceMetricsInfo)</span></span> &#123;</span><br><span class="line">	printValue(out, metrics.Name)</span><br><span class="line">	&lt;mark&gt;printAllResourceUsages(out, metrics)&lt;/mark&gt;</span><br><span class="line">	fmt.Fprint(out, <span class="string">"\n"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>实际上就是计算了使用的资源并和机器上的可用资源相除取整并打印输出。<br><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">printAllResourceUsages</span><span class="params">(out io.Writer, metrics *ResourceMetricsInfo)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> _, res := <span class="keyword">range</span> MeasuredResources &#123;</span><br><span class="line">		quantity := metrics.Metrics[res]</span><br><span class="line">		printSingleResourceUsage(out, res, quantity)</span><br><span class="line">		fmt.Fprint(out, <span class="string">"\t"</span>)</span><br><span class="line">		<span class="keyword">if</span> available, found := metrics.Available[res]; found &#123;</span><br><span class="line">			&lt;mark&gt;fraction := float64(quantity.MilliValue()) / float64(available.MilliValue()) * 100&lt;/mark&gt;</span><br><span class="line">			fmt.Fprintf(out, <span class="string">"%d%%\t"</span>, <span class="keyword">int64</span>(fraction))</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>Metric server的应用场景</strong></p>
+<ul>
+<li><p>HPA (Horizontal Pod Autoscaler): 主要是解决当某种类型的workload对象占用资源超过一定数量之后需要增加更多的pod以缓解client端访问的压力（<a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/）" target="_blank" rel="noopener">https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/）</a></p>
+</li>
+<li><p><a href="https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler" target="_blank" rel="noopener">VPA(Vertical Pod Autoscaler)</a>：解决当pod的request的资源小于实际pod需要的资源数量之后，需要增加pod的request数量应该采取的措施。例如重新定义request的值，并创建一个新的pod。</p>
+</li>
+</ul>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="http://jungler.com/2022/06/16/Kubernetes-metric-server简介/" data-id="cl4lc94950002ptcci4a2xwun" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Dave Chen"
+        },
+        "headline": "Kubernetes - metric server简介",
+        "image": "http://jungler.com/css/images/世博.jpg",
+        "keywords": "Kubernetes",
+        "genre": "",
+        "datePublished": "2022-06-16",
+        "dateCreated": "2022-06-16",
+        "dateModified": "2022-06-19",
+        "url": "http://jungler.com/2022/06/16/Kubernetes-metric-server简介/",
+        "description": "关于metric server的一些随笔。
+总得说来，metric server可以获取node和pod的使用了多少CPU或者memory的资源，其底层实现是通过cadvisor调用了runc的接口来读取例如CPU和memory的使用信息。
+官网上的一个metric资源访问流。
+安装apply -flink12345678910111213在测试场景下，我们还需要启动metric server的启",
+        "wordCount": 1505
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="stack-overflow" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-stack-overflow"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/chendave" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+    
+        <a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">Kubernetes - HA and LB cluster setup</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2022/06/16/Kubernetes-metric-server简介/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/世博.jpg)" alt="Kubernetes - metric server简介" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2022/06/16/Kubernetes-metric-server简介/" class="title">Kubernetes - metric server简介</a></p>
+                            <p class="item-date"><time datetime="2022-06-16T08:24:28.000Z" itemprop="datePublished">2022-06-16</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/css/images/mid-autumn.jpg)" alt="Kubernetes - HA and LB cluster setup" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/" class="title">Kubernetes - HA and LB cluster setup</a></p>
+                            <p class="item-date"><time datetime="2021-11-09T03:07:45.000Z" itemprop="datePublished">2021-11-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/绍兴.jpg)" alt="kubemark + perf_test(clusterloader) 本地性能测试的注意事项" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/09/21/kubemark-perf-test-clusterloader-本地性能测试的注意事项/" class="title">kubemark + perf_test(clusterloader) 本地性能测试的注意事项</a></p>
+                            <p class="item-date"><time datetime="2021-09-21T04:35:43.000Z" itemprop="datePublished">2021-09-21</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/07/25/kubelet若干配置-待更新/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/西湖.jpg)" alt="kubelet若干配置-待更新" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/07/25/kubelet若干配置-待更新/" class="title">kubelet若干配置-待更新</a></p>
+                            <p class="item-date"><time datetime="2021-07-25T07:03:16.000Z" itemprop="datePublished">2021-07-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://github.com/chendave/chendave.github.io/raw/master/css/images/崇明.jpg)" alt="Kubernetes-从APIServer到Kubelet" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"></p>
+                            <p class="item-title"><a href="/2021/02/16/Kubernetes-从APIServer到Kubelet/" class="title">Kubernetes-从APIServer到Kubelet</a></p>
+                            <p class="item-date"><time datetime="2021-02-16T12:40:54.000Z" itemprop="datePublished">2021-02-16</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ceph/">Ceph</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kubernetes/">Kubernetes</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenStack/">OpenStack</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a><span class="tag-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/Ceph/" style="font-size: 15px;">Ceph</a> <a href="/tags/Kubernetes/" style="font-size: 20px;">Kubernetes</a> <a href="/tags/OpenStack/" style="font-size: 20px;">OpenStack</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io">Hexo</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2022 Dave Chen</p>
+                
+                <p>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="https://github.com/ppoffice" target="_blank">PPOffice</a></p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'http://jungler.com/2022/06/16/Kubernetes-metric-server简介/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>
