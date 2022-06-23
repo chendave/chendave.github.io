@@ -2,23 +2,9 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://jungler.com/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/</loc>
-    
-    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://jungler.com/2021/02/16/Kubernetes-%E4%BB%8EAPIServer%E5%88%B0Kubelet/</loc>
-    
-    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://jungler.com/2022/06/16/Kubernetes-metric-server%E7%AE%80%E4%BB%8B/</loc>
     
-    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    <lastmod>2022-06-23T10:50:18.877Z</lastmod>
     
   </url>
   
@@ -37,21 +23,7 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/10/06/Python%E5%9F%BA%E7%A1%80-name-main/</loc>
-    
-    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://jungler.com/2018/06/23/PG%E5%BC%82%E5%B8%B8%E7%8A%B6%E6%80%81-active+undersized+degraded/</loc>
-    
-    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://jungler.com/2018/03/06/hello-world/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
@@ -65,14 +37,42 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/05/20/kube-patch/</loc>
+    <loc>http://jungler.com/2021/11/09/Kubernetes-HA-and-LB-cluster-setup/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://jungler.com/2021/09/21/kubemark-perf-test-clusterloader-%E6%9C%AC%E5%9C%B0%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</loc>
+    <loc>http://jungler.com/2021/02/16/Kubernetes-%E4%BB%8EAPIServer%E5%88%B0Kubelet/</loc>
+    
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://jungler.com/2018/10/06/Python%E5%9F%BA%E7%A1%80-name-main/</loc>
+    
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://jungler.com/2018/03/06/hello-world/</loc>
+    
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://jungler.com/2018/07/28/neutron%E6%8E%A5%E5%8F%A3%E5%91%BD%E5%90%8D%E6%BD%9C%E8%A7%84%E5%88%99/</loc>
+    
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://jungler.com/2018/05/20/kube-patch/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
@@ -93,7 +93,7 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/07/28/neutron%E6%8E%A5%E5%8F%A3%E5%91%BD%E5%90%8D%E6%BD%9C%E8%A7%84%E5%88%99/</loc>
+    <loc>http://jungler.com/2018/06/18/%E5%88%9B%E5%BB%BAKubernetes-UI/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
@@ -107,7 +107,21 @@
   </url>
   
   <url>
-    <loc>http://jungler.com/2018/06/18/%E5%88%9B%E5%BB%BAKubernetes-UI/</loc>
+    <loc>http://jungler.com/2018/12/31/%E6%97%A5%E5%BF%97%E8%BF%81%E7%A7%BB/</loc>
+    
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://jungler.com/2021/09/21/kubemark-perf-test-clusterloader-%E6%9C%AC%E5%9C%B0%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</loc>
+    
+    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://jungler.com/2018/07/01/%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%B8%8D%E9%80%9A%E7%9A%84%E5%87%A0%E4%B8%AA%E6%80%9D%E8%B7%AF%5B2%5D/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
@@ -122,20 +136,6 @@
   
   <url>
     <loc>http://jungler.com/2018/10/21/%E5%88%9D%E6%8E%A2Openstack-Neutron-DVR/</loc>
-    
-    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://jungler.com/2018/12/31/%E6%97%A5%E5%BF%97%E8%BF%81%E7%A7%BB/</loc>
-    
-    <lastmod>2022-06-19T11:49:19.353Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://jungler.com/2018/07/01/%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%B8%8D%E9%80%9A%E7%9A%84%E5%87%A0%E4%B8%AA%E6%80%9D%E8%B7%AF%5B2%5D/</loc>
     
     <lastmod>2022-06-19T11:49:19.353Z</lastmod>
     
